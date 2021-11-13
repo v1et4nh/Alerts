@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-bot_token = str(os.getenv('TELEGRAM_BOT_TOKEN'))    # Replace with your own bot_token
+bot_token = str(os.getenv('TELEGRAM_BOT_TOKEN'))            # Replace with your own bot_token
 bot_chatID = str(os.getenv('TELEGRAM_BOT_CHATID_PRIVATE'))  # Replace with your own bot_chatID
 
 
