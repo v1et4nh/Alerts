@@ -1,9 +1,10 @@
+import json
 from Functions.bs4_handler import get_soup
 from Functions.general_functions import price_triggered
-from Functions.pickle_handler import save_pickle, load_pickle
+from Functions.file_handler import save_pickle, load_pickle, load_json
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
-PICKLE_FILE = 'notebooksbilliger.pickle'
+PICKLE_FILE = '../Data/notebooksbilliger_last_messages.pickle'
 
 
 def in_stock(soup):
@@ -33,9 +34,9 @@ def get_last_message(item):
         return ''
 
 
-def run_notebooksbilliger_alert(list_item):
+def run_notebooksbilliger_alert(dict_graka):
     dict_items_message = {}
-    for item in list_item:
+    for id, item in dict_graka.items():
         # Get html source code
         soup = get_soup(item['url'])
         if soup == 'RequestsError':
@@ -54,7 +55,7 @@ def run_notebooksbilliger_alert(list_item):
                 message = item['name'] + ' is in stock, but not below desired price of ' + str(item['price']) + '€ (Current price: ' + str(price) + '€)\n'
             message += url_encoded
         else:
-            message = item['name'] + ' not in stock any more..'
+            message = item['name'] + ' is not in stock any more..'
         print(message)
 
         # Check if message is already sent
@@ -74,39 +75,5 @@ def run_notebooksbilliger_alert(list_item):
 
 
 if __name__ == '__main__':
-    rtx3060 = {'name': 'RTX 3060',
-               'flag':  'price',
-               'url':   'https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3060+nvidia',
-               'price': 500}
-    rtx3060ti = {'name': 'RTX 3060 Ti',
-                 'flag':  'price',
-                 'url':   'https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3060+ti+nvidia',
-                 'price': 500}
-
-    rtx3070_founders_edition = {'name': 'RTX 3070 Founders Edition',
-                                'flag':  'stock',
-                                'url':   'https://www.notebooksbilliger.de/nvidia+geforce+rtx+3070+founders+edition+714793',
-                                'price': 550}
-    rtx3070 = {'name': 'RTX 3070',
-               'flag':  'stock',
-               'url':   'https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3070+nvidia',
-               'price': 550}
-    rtx3070_ti = {'name': 'RTX 3070 Ti',
-                  'flag':  'stock',
-                  'url':   'https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3070+ti+nvidia',
-                  'price': 550}
-
-    rtx3080 = {'name': 'RTX 3080',
-               'flag':  'price',
-               'url':   'https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3080+nvidia',
-               'price': 1200}
-    rtx3080ti = {'name': 'RTX 3080 Ti',
-                 'flag':  'stock',
-                 'url':   'https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3080+ti+nvidia',
-                 'price': 1500}
-
-    list_graka = [rtx3060, rtx3060ti,
-                  rtx3070_founders_edition, rtx3070, rtx3070_ti,
-                  rtx3080, rtx3080ti]
-
-    run_notebooksbilliger_alert(list_graka)
+    dict_graka = load_json('../Data/notebooksbilliger_graka.json')
+    run_notebooksbilliger_alert(dict_graka)
