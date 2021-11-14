@@ -40,9 +40,14 @@ def check_price(is_list_price, should_list_price):
             end = current_idx + 4
         short_name = name[start:end]
 
-        if price <= should_list_price[short_name]:
-            message = name + '\n' + str(price) + ' Euro' + '\n' + url
-            telegram_bot_sendtext(message)
+        try:
+            debug_txt = short_name + ': ' + str(price) + ' | ' + str(should_list_price[short_name])
+            print(debug_txt)
+            if price <= should_list_price[short_name]:
+                message = name + '\n' + str(price) + ' Euro' + '\n' + url
+                telegram_bot_sendtext(message)
+        except:
+            print(short_name + ' is not listed in the scraper')
 
 
 def main(dict_price):
