@@ -47,8 +47,8 @@ def run_notebooksbilliger_alert(dict_graka):
         if in_stock(soup):
             price = get_price(soup)
             if price <= item['price']:
-                message = 'PRICE ALERT TRIGGERED!\n' + item['name'] + ' is in stock for ' + str(price) + '€:\n' + url_encoded
-                message_trigger = message
+                message = 'PRICE ALERT TRIGGERED!\n' + item['name'] + ' is in stock for ' + str(price) + '€:\n'
+                message_trigger = message + url_encoded
             else:
                 message = item['name'] + ' is in stock, but not below desired price of ' + str(item['price']) + '€ (Current price: ' + str(price) + '€)\n'
             message += url_encoded
