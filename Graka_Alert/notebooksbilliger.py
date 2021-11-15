@@ -1,6 +1,4 @@
-import json
 from Functions.bs4_handler import get_soup
-from Functions.general_functions import price_triggered
 from Functions.file_handler import save_pickle, load_pickle, load_json
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
@@ -48,7 +46,7 @@ def run_notebooksbilliger_alert(dict_graka):
         url_encoded = item['url'].replace('+', '%2b')
         if in_stock(soup):
             price = get_price(soup)
-            if price_triggered(price, item['price']):
+            if price <= item['price']:
                 message_trigger = 'PRICE ALERT TRIGGERED!\n' + item['name'] + ' is in stock for ' + str(price) + '€:\n'
                 message = message_trigger
             else:
