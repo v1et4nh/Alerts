@@ -21,7 +21,7 @@ def get_gas_prices():
 def run_gas_fee_tracker():
     list_gas_prices = get_gas_prices()
     for price in list_gas_prices:
-        if price <= 80:
+        if price <= 70:
             gas_url = 'https://etherscan.io/gastracker#historicaldata'
             message = 'Gas Price is at ' + str(price) + ' Gwei!\nCheck it out: ' + gas_url
             telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
