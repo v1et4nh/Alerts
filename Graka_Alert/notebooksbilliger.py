@@ -62,6 +62,9 @@ def run_notebooksbilliger_alert(dict_graka):
             if item['flag'] == 'price' and message_trigger:
                 telegram_bot_sendtext(message_trigger)
                 print('Message sent...')
+            else:
+                message = item['name'] + ' is not in stock any more..'
+                telegram_bot_sendtext(message)
             if item['flag'] == 'stock':
                 telegram_bot_sendtext(message)
                 print('Message sent...')
