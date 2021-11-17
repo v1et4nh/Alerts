@@ -13,9 +13,9 @@ def get_gas_prices():
     safe_gas_price    = int(data['result']['SafeGasPrice'])
     propose_gas_price = int(data['result']['ProposeGasPrice'])
     fast_gas_price    = int(data['result']['FastGasPrice'])
-    suggest_base_fee  = float(data['result']['suggestBaseFee'])
+    # suggest_base_fee  = float(data['result']['suggestBaseFee'])
 
-    return [safe_gas_price, propose_gas_price, fast_gas_price, suggest_base_fee]
+    return [safe_gas_price, propose_gas_price, fast_gas_price]
 
 
 def run_gas_fee_tracker():
