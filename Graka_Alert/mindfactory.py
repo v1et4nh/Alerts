@@ -44,6 +44,7 @@ def check_price(is_list_price, should_list_price):
             debug_txt = short_name + ': ' + str(price) + ' | ' + str(should_list_price[short_name])
             print(debug_txt)
             if price <= should_list_price[short_name]:
+                url = url.replace('_', '\_')
                 message = name + '\n' + str(price) + ' Euro' + '\n' + url
                 telegram_bot_sendtext(message)
         except:

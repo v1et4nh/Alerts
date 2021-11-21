@@ -38,4 +38,6 @@ def telegram_bot_sendphoto(str_picpath, bot_token=bot_token, bot_chatID=bot_chat
 
 
 if __name__ == '__main__':
-    telegram_bot_sendtext('Test')
+    url = 'https://www.mindfactory.de/product_info.php/12GB-MSI-GeForce-RTX-3080-Ti-GAMING-X-TRIO-Aktiv-PCIe-4-0-x16-_1414347.html'
+    url = url.replace('_', '\_')
+    telegram_bot_sendtext(url, bot_chatID=bot_chatID_private)
