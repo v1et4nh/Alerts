@@ -47,7 +47,7 @@ def getCurrentMintPrice(dict_data):
             return 'RequestsError'
 
     data = res.json()
-    currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/10
+    currentPrice = float(str(int(data['result'], 16)).replace('0', ''))
 
     return currentPrice
 
@@ -56,7 +56,9 @@ def run_clonex_mint_counter():
     dict_data    = getEtherScanData()
     last_counter = get_last_message()
     mint_counter = getMintedAmount(dict_data)
-    if mint_counter - last_counter >= 100:
+    print(last_counter)
+    print(mint_counter)
+    if mint_counter - last_counter >= 5:
         amount_left = 20000 - mint_counter
         message = 'Clone X amount minted: *' + str(mint_counter) + '*\n\nOnly *' + str(amount_left) + '* Clone X NFTs left :OOO'
         price = getCurrentMintPrice(dict_data)
