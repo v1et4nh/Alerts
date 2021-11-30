@@ -25,6 +25,11 @@ def getEtherScanData():
 
 
 def getMintedAmount(dict_data):
+    """
+    To get the data hash value use this website: https://emn178.github.io/online-tools/keccak_256.html
+    E.g. if you look for getAmountMinted() on the readContract-site -> insert getAmountMinted() and use 0x and
+    the first 8 characters -> 0xe777df20
+    """
     url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0xe777df20&apikey='+dict_data['key']
     res = requests.get(url)
     if res.status_code != 200:
