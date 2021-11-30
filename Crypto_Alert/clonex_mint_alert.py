@@ -54,7 +54,7 @@ def getCurrentMintPrice(dict_data):
 
 def run_clonex_mint_counter():
     dict_data    = getEtherScanData()
-    last_counter     = get_last_message()
+    last_counter = get_last_message()
     mint_counter = getMintedAmount(dict_data)
     if mint_counter - last_counter >= 100:
         amount_left = 20000 - mint_counter
