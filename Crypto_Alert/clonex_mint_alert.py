@@ -1,6 +1,19 @@
 import requests
 import json
+from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext
+
+
+PICKLE_FILE = '../Data/clonex_last_counter.pickle'
+
+
+def get_last_message():
+    dict_last_messages = load_pickle(PICKLE_FILE)
+    try:
+        return dict_last_messages['counter']
+    except:
+        tmp_dict = {'counter': 20000}
+        return tmp_dict
 
 
 def getEtherScanData():
@@ -41,15 +54,19 @@ def getCurrentMintPrice(dict_data):
 
 
 def run_clonex_mint_counter():
-    dict_data = getEtherScanData()
+    dict_data    = getEtherScanData()
+    tmp_dict     = get_last_message()
     mint_counter = getMintedAmount(dict_data)
-    if mint_counter % 100 == 0:
+    last_counter = tmp_dict['counter']
+    if mint_counter - last_counter >= 100:
         amount_left = 20000 - mint_counter
         message = 'Clone X amount minted: ' + str(mint_counter) + '\n\nOnly ' + str(amount_left) + ' Clone X NFTs left :OOO'
         price = getCurrentMintPrice(dict_data)
         eur_price = int(4000 * price)
         message += '\n\nCurrent Mint Price: ' + str(price) + ' ETH (~' + str(eur_price) + ' EUR)'
         telegram_bot_sendtext(message, bot_chatID='-1001538195190')
+        dict_counter = {'counter': mint_counter}
+        save_pickle(dict_counter, PICKLE_FILE)
 
 
 if __name__ == '__main__':
