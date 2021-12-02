@@ -80,4 +80,4 @@ def run_clonex_mint_counter():
 if __name__ == '__main__':
     while True:
         run_clonex_mint_counter()
-        sleep(0.5)
+        sleep(30)
