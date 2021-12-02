@@ -1,1 +1,0 @@
-Get ChatID: https://api.telegram.org/bot1698488378:AAF7ljXq4ikA-nUBNvP7ogATeS9txUw0gYc/getUpdates
