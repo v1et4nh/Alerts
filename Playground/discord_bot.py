@@ -2,6 +2,7 @@ import os
 import requests
 import discord
 import time
+from time import sleep
 from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
@@ -84,4 +85,11 @@ async def on_ready():
     print(f'{guild.name}(id: {guild.id})')
     test.start()
 
-client.run(TOKEN)
+
+while True:
+    try:
+        print('Bot started..')
+        client.run(TOKEN)
+    except:
+        sleep(5)
+        print('Bot restart..')
