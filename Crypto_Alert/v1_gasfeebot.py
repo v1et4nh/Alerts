@@ -95,6 +95,7 @@ def stop_alert(message):
     chat_id = str(message.chat.id)
     if chat_id in dict_user:
         dict_user[chat_id] = 0
+        save_pickle(dict_user, PICKLE_FILE)
     bot.send_message(message.chat.id, 'Alert stopped! Run alert again by typing /start')
 
 
