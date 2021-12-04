@@ -1,4 +1,5 @@
 import requests
+import time
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key
@@ -81,5 +82,6 @@ def run_clonex_mint_counter():
 
 if __name__ == '__main__':
     while True:
+        print(time.strftime('%X %x %Z'))
         run_clonex_mint_counter()
         sleep(0.5)
