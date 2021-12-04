@@ -106,7 +106,7 @@ def set_threshold(message):
         chat_id   = str(message.chat.id)
         dict_user[chat_id] = threshold
         save_pickle(dict_user, PICKLE_FILE)
-        bot.send_message(message.chat.id, 'Threshold set successfully to ' + str(threshold) + ' GWEI')
+        bot.send_message(message.chat.id, 'Threshold successfully set to ' + str(threshold) + ' GWEI')
     except:
         bot.send_message(message.chat.id, 'Invalid input! Use /help to see all available commands.')
 
