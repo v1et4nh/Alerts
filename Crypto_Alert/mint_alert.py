@@ -74,7 +74,7 @@ def run_clonex_mint_counter():
         price = getCurrentMintPrice(dict_data)
         eur_price = int(4000 * price)
         message += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (~' + str(eur_price) + ' EUR)'
-        telegram_bot_sendtext(message, bot_chatID='-1001538195190')
+        telegram_bot_sendtext(message, bot_chatID='-1001701186867')
         # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
         dict_counter = {'counter': mint_counter}
         save_pickle(dict_counter, PICKLE_FILE)
