@@ -1,34 +1,36 @@
 import requests
-from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
+from Functions.telegrambot import telegram_bot_sendtext, bot_v1_gasfeebot_token, etherscan_api_key
+from Functions.file_handler import save_pickle, load_pickle
+
+PICKLE_FILE = '../Data/v1_gasfeebot_ids.pickle'
 
 
-def get_gas_prices():
-    url = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=YourApiKeyToken'
-    res = requests.get(url)
-    if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        if res.status_code != 200:
-            return 'RequestsError'
-    data = res.json()
-    safe_gas_price    = int(data['result']['SafeGasPrice'])
-    propose_gas_price = int(data['result']['ProposeGasPrice'])
-    fast_gas_price    = int(data['result']['FastGasPrice'])
-    # suggest_base_fee  = float(data['result']['suggestBaseFee'])
+def get_gasfee():
+    getgas = "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey="
+    data = requests.get(getgas + etherscan_api_key).json()
 
-    return [safe_gas_price, propose_gas_price, fast_gas_price]
+    low = data["result"]["SafeGasPrice"]
+    avg = data["result"]["ProposeGasPrice"]
+    fast = data["result"]["FastGasPrice"]
+
+    gasinfo = f"""*Ethereum Live Gas Fees:*
+Low:        _{low} GWEI_
+Average:    _{avg} GWEI_
+High/Fast:  _{fast} GWEI_
+
+More info: [EtherScan](https://etherscan.io/gasTracker)
+
+Donate to support the development of this bot: /donate"""
+
+    return min([int(low), int(avg), int(fast)]), gasinfo
 
 
 def run_gas_fee_tracker():
-    list_gas_prices = get_gas_prices()
-    for price in list_gas_prices:
-        if price <= 50:
-            gas_url = 'https://etherscan.io/gastracker#historicaldata'
-            message = 'Gas Price is at ' + str(price) + ' Gwei!\nCheck it out: ' + gas_url
-            telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
-            break
-    # Debug
-    print(list_gas_prices)
-    print('No trigger')
+    dict_user = load_pickle(PICKLE_FILE)
+    for chat_id in dict_user:
+        price, gasinfo = get_gasfee()
+        if price <= int(dict_user[chat_id]):
+            telegram_bot_sendtext(gasinfo, bot_token=bot_v1_gasfeebot_token, bot_chatID=chat_id)
 
 
 if __name__ == '__main__':
