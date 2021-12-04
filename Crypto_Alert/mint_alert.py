@@ -1,8 +1,7 @@
-import json
 import requests
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
-from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
+from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key
 
 
 PICKLE_FILE = '../Data/rebelz_last_counter.pickle'
@@ -17,11 +16,9 @@ def get_last_message():
 
 
 def getEtherScanData():
-    with open('../Data/api_key.json', mode='r') as key_file:
-        key = json.loads(key_file.read())['key']
     # address = '0x348FC118bcC65a92dC033A951aF153d14D945312'  # CloneX
     address = '0x074C532B1659bC47065a6c4e784F8965971C3e7c'   # Rebelz
-    tmp_dict = {'address': address, 'key': key}
+    tmp_dict = {'address': address, 'key': etherscan_api_key}
 
     return tmp_dict
 
@@ -59,6 +56,11 @@ def getCurrentMintPrice(dict_data):
     return currentPrice
 
 
+def getNumberOfHolders():
+    url = "https://opensea.io/collection/rebelz"
+    resp = requests.get(url)
+
+
 def run_clonex_mint_counter():
     dict_data    = getEtherScanData()
     last_counter = get_last_message()
@@ -80,4 +82,4 @@ def run_clonex_mint_counter():
 if __name__ == '__main__':
     while True:
         run_clonex_mint_counter()
-        sleep(30)
+        sleep(0.5)
