@@ -113,4 +113,4 @@ if __name__ == '__main__':
     while True:
         print(time.strftime('%X %x %Z'))
         run_clonex_mint_counter()
-        sleep(0.5)
+        sleep(1)

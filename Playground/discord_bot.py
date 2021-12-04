@@ -1,6 +1,7 @@
 import os
 import requests
 import discord
+import time
 from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
@@ -45,6 +46,7 @@ async def test():
     dict_data    = getEtherScanData()
     last_counter = get_last_message()
     mint_counter = getMintedAmount(dict_data)
+    print(time.strftime('%X %x %Z'))
     print(last_counter, mint_counter)
     if mint_counter - last_counter > 0:
         amount_left = 10000 - mint_counter
