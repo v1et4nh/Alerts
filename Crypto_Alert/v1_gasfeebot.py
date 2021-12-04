@@ -115,7 +115,8 @@ def set_threshold(message):
 print('Bot Listener started..')
 while True:
     try:
+        print('Bot started..)
         bot.polling(none_stop=True)
     except:
-        sleep(1)
+        sleep(5)
         print('Bot restart..')
