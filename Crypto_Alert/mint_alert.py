@@ -2,7 +2,7 @@ import requests
 import time
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
-from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key
+from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
 
 
 PICKLE_FILE = '../Data/rebelz_last_counter.pickle'
@@ -57,6 +57,33 @@ def getCurrentMintPrice(dict_data):
     return currentPrice
 
 
+def getETHprice():
+    url_eur = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=eur%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    url_usd = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    data_eur = requests.get(url_eur).json()
+    peur = round(data_eur["ethereum"]["eur"], 2)
+    peur = format(peur, ",")
+    peur_val = float(peur.replace(',', ''))
+    data = requests.get(url_usd).json()
+    pusd = round(data["ethereum"]["usd"], 2)
+    pusd = format(pusd, ",")
+    pusd_val = float(pusd.replace(',', ''))
+    pbtc = round(data["ethereum"]["btc"], 8)
+    pchange = round(data["ethereum"]["usd_24h_change"], 2)
+    market = round(data["ethereum"]["usd_market_cap"])
+    market = format(market, ",")
+
+    priceinfo = f"""<b><ins><a href='https://coingecko.com/en/coins/ethereum/'>Ethereum | $ETH</a> Price:</ins></b>
+<b>💰 EUR:</b> €{peur}
+<b>💰 USD:</b> ${pusd}
+<b>🗿 BTC:</b> ฿{pbtc}
+<b>📈 24h change:</b> {pchange}%
+<b>💎 Market Cap:</b> ${market}
+"""
+
+    return peur_val, pusd_val, priceinfo
+
+
 def getNumberOfHolders():
     url = "https://opensea.io/collection/rebelz"
     resp = requests.get(url)
@@ -72,8 +99,10 @@ def run_clonex_mint_counter():
         amount_left = 10000 - mint_counter
         message = 'Rebelz amount minted: *' + str(mint_counter) + '*\n\nOnly *' + str(amount_left) + '* Rebelz NFTs left :OOO'
         price = getCurrentMintPrice(dict_data)
-        eur_price = int(4000 * price)
-        message += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (~' + str(eur_price) + ' EUR)'
+        eur, usd, _ = getETHprice()
+        eur_price = int(eur * price)
+        usd_price = int(usd * price)
+        message += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
         telegram_bot_sendtext(message, bot_chatID='-1001701186867')
         # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
         dict_counter = {'counter': mint_counter}
