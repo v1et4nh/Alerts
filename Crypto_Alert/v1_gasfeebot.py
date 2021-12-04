@@ -82,7 +82,7 @@ def help(message):
 
 @bot.message_handler(commands=['getUserCount'])
 def getuser(message):
-    if message.chat.id == 383615621:
+    if message.chat.id == 383615621 or message.chat.id == 1899354791:
         dict_user = load_pickle(PICKLE_FILE)
         count = len(dict_user)
         bot.send_message(message.chat.id, "Number of User using this bot: " + str(count))
