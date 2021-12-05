@@ -136,6 +136,9 @@ def run_meka_mint_counter():
 
 if __name__ == '__main__':
     while True:
-        print(time.strftime('%X %x %Z'))
-        run_meka_mint_counter()
-        sleep(1)
+        try:
+            print(time.strftime('%X %x %Z'))
+            run_meka_mint_counter()
+            sleep(1)
+        except:
+            print('Restart...')
