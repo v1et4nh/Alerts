@@ -117,7 +117,9 @@ def run_mint_counter():
         eur_price   = int(eur * price)
         usd_price   = int(usd * price)
         message    += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
+        message    += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
         telegram_bot_sendtext(message, bot_chatID='-1001701186867')
+        # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
         dict_counter = {'counter': mint_counter}
         save_pickle(dict_counter, PICKLE_FILE)
 
