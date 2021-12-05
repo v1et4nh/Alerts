@@ -111,6 +111,9 @@ def run_clonex_mint_counter():
 
 if __name__ == '__main__':
     while True:
-        print(time.strftime('%X %x %Z'))
-        run_clonex_mint_counter()
-        sleep(5)
+        try:
+            print(time.strftime('%X %x %Z'))
+            run_clonex_mint_counter()
+            sleep(5)
+        except:
+            print('Restart...')
