@@ -116,10 +116,10 @@ def run_meka_mint_counter():
     mint_counter = getMintedAmount(dict_data)
     print(last_counter)
     print(mint_counter)
-    stats = getOSstats()
     if mint_counter - last_counter > 0:
         maxSupply = getMaxSupply(dict_data)
         amount_left = maxSupply - mint_counter
+        stats = getOSstats()
         message = 'Meka Ape amount minted: *' + str(mint_counter) + '*\nMeka Ape NFTs left: *' + str(amount_left) + '*'
         message += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH*'
         message += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
