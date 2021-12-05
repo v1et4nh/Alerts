@@ -96,16 +96,33 @@ def getETHprice():
     return peur_val, pusd_val, priceinfo
 
 
+def getOSstats():
+    url = "https://api.opensea.io/api/v1/collection/mekaapeclubofficial"
+    res = requests.get(url)
+    if res.status_code != 200:
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        if res.status_code != 200:
+            return 'RequestsError'
+
+    data = res.json()
+    stats = data['collection']['stats']
+
+    return stats
+
+
 def run_meka_mint_counter():
     dict_data    = getEtherScanData()
     last_counter = get_last_message()
     mint_counter = getMintedAmount(dict_data)
     print(last_counter)
     print(mint_counter)
-    if mint_counter - last_counter > 0:
+    stats = getOSstats()
+    if mint_counter - last_counter > -10:
         maxSupply = getMaxSupply(dict_data)
         amount_left = maxSupply - mint_counter
-        message = 'Meka Ape amount minted: *' + str(mint_counter) + '*\n\nOnly *' + str(amount_left) + '* Meka Ape NFTs left :OOO'
+        message = 'Meka Ape amount minted: *' + str(mint_counter) + '*\nMeka Ape NFTs left: *' + str(amount_left) + '*'
+        message += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH*'
+        message += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
         price = getCurrentMintPrice(dict_data)
         eur, usd, _ = getETHprice()
         eur_price = int(eur * price)
