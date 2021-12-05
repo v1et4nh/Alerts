@@ -116,7 +116,7 @@ def run_meka_mint_counter():
     mint_counter = getMintedAmount(dict_data)
     print(last_counter)
     print(mint_counter)
-    if mint_counter - last_counter > -10:
+    if mint_counter - last_counter > 0:
         maxSupply = getMaxSupply(dict_data)
         amount_left = maxSupply - mint_counter
         stats = getOSstats()
