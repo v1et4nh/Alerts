@@ -55,7 +55,7 @@ def getOSstats(collection=OPENSEA):
 def run_os_stats():
     stats = getOSstats()
     last_floor = get_last_message()
-    floor_price = float(stats['floor_price'])-1
+    floor_price = float(stats['floor_price'])
     message  = NAME + ': ' + str(floor_price)
     print(message)
     if floor_price < PRICE_ALARM and floor_price - last_floor != 0:
