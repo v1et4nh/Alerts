@@ -6,7 +6,7 @@ from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_
 
 NAME        = 'Sloties'
 PICKLE_FILE = '../Data/sloties_last_counter.pickle'
-ADDRESS     = '0x5fdb2b0c56afa73b8ca2228e6ab92be90325961d'   # Sloties
+ADDRESS     = '0xcCb12A755BF866368E483dBeD505d1C3E40d2562'   # Sloties
 OPENSEA     = 'slotienft'
 SLEEP       = 1
 
@@ -89,7 +89,7 @@ def run_mint_counter():
     console_output  = NAME + ': Last ' + str(last_counter) + ' | Now ' + str(mint_counter)
     print(console_output)
     if mint_counter - last_counter > 0:
-        maxSupply   = 10000
+        maxSupply   = 7000
         amount_left = maxSupply - mint_counter
         stats       = getOSstats()
         owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
