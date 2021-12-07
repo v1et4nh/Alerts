@@ -108,7 +108,9 @@ def run_mint_counter():
         maxSupply   = getMaxSupply(dict_data)
         amount_left = maxSupply - mint_counter
         stats       = getOSstats()
+        owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
         message     = 'Minted: *' + str(mint_counter) + '* | Holders: *' + str(stats['num_owners']) + '*'
+        message    += '\nOwner-to-Mint-Ratio: *' + str(owner_mint_ratio) + '*'
         message    += '\nLeft: *' + str(amount_left) + '*'
         message    += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH*'
         message    += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
