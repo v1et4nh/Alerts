@@ -57,7 +57,8 @@ def main(dict_price):
 
 
 if __name__ == '__main__':
-    dict_price = {'3060':    550,
+    dict_price = {'2060':    500,
+                  '3060':    550,
                   '3060 Ti': 700,
                   '3070':    850,
                   '3070 Ti': 950,
