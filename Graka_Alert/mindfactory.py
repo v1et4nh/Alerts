@@ -36,6 +36,8 @@ def check_price(is_list_price, should_list_price):
             end = current_idx + 2
         else:
             current_idx = name.find('30')
+            if current_idx == -1:
+                current_idx = name.find('20')
             start = current_idx
             end = current_idx + 4
         short_name = name[start:end]
