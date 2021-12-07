@@ -1,11 +1,12 @@
 import requests
 import time
 from time import sleep
-from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
+from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME        = 'Clone X'
 OPENSEA     = 'clonex-mintvial'
 SLEEP       = 5
+PRICE_ALARM = 3  # ETH
 
 
 def getData(url):
@@ -29,10 +30,6 @@ def getETHprice():
     pusd = round(data["ethereum"]["usd"], 2)
     pusd = format(pusd, ",")
     pusd_val = float(pusd.replace(',', ''))
-    pbtc = round(data["ethereum"]["btc"], 8)
-    pchange = round(data["ethereum"]["usd_24h_change"], 2)
-    market = round(data["ethereum"]["usd_market_cap"])
-    market = format(market, ",")
 
     return peur_val, pusd_val
 
@@ -50,7 +47,7 @@ def run_os_stats():
     floor_price = float(stats['floor_price'])
     message  = NAME + ': ' + str(floor_price)
     print(message)
-    if floor_price < 3:
+    if floor_price < PRICE_ALARM:
         eur, usd, = getETHprice()
         eur_price = int(eur * floor_price)
         usd_price = int(usd * floor_price)
