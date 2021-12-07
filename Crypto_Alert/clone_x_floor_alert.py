@@ -1,12 +1,22 @@
 import requests
 import time
 from time import sleep
+from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME        = 'Clone X'
 OPENSEA     = 'clonex-mintvial'
 SLEEP       = 5
 PRICE_ALARM = 3  # ETH
+PICKLE_FILE = '../Data/clonex_last_floor.pickle'
+
+
+def get_last_message():
+    dict_last_messages = load_pickle(PICKLE_FILE)
+    try:
+        return dict_last_messages['counter']
+    except:
+        return -100000
 
 
 def getData(url):
@@ -44,10 +54,11 @@ def getOSstats(collection=OPENSEA):
 
 def run_os_stats():
     stats = getOSstats()
+    last_floor = get_last_message()
     floor_price = float(stats['floor_price'])
     message  = NAME + ': ' + str(floor_price)
     print(message)
-    if floor_price < PRICE_ALARM:
+    if floor_price < PRICE_ALARM and floor_price - last_floor != 0:
         eur, usd, = getETHprice()
         eur_price = int(eur * floor_price)
         usd_price = int(usd * floor_price)
@@ -55,6 +66,8 @@ def run_os_stats():
         message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
         telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
+        dict_floor = {'floor': floor_price}
+        save_pickle(dict_floor, PICKLE_FILE)
 
 
 def main(time_intervall=SLEEP):
