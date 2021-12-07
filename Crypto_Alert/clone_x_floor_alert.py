@@ -34,15 +34,7 @@ def getETHprice():
     market = round(data["ethereum"]["usd_market_cap"])
     market = format(market, ",")
 
-    priceinfo = f"""<b><ins><a href='https://coingecko.com/en/coins/ethereum/'>Ethereum | $ETH</a> Price:</ins></b>
-<b>💰 EUR:</b> €{peur}
-<b>💰 USD:</b> ${pusd}
-<b>🗿 BTC:</b> ฿{pbtc}
-<b>📈 24h change:</b> {pchange}%
-<b>💎 Market Cap:</b> ${market}
-"""
-
-    return peur_val, pusd_val, priceinfo
+    return peur_val, pusd_val
 
 
 def getOSstats(collection=OPENSEA):
@@ -59,13 +51,12 @@ def run_os_stats():
     message  = NAME + ': ' + str(floor_price)
     print(message)
     if floor_price < 3:
-        eur, usd, _ = getETHprice()
-        eur_price   = int(eur * floor_price)
-        usd_price   = int(usd * floor_price)
-        message    += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
-        message    += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
-        message    += '\nHolders: *' + str(stats['num_owners']) + '*'
-        message    += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
+        eur, usd, = getETHprice()
+        eur_price = int(eur * floor_price)
+        usd_price = int(usd * floor_price)
+        message  += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
+        message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
+        message  += '\nHolders: *' + str(stats['num_owners']) + '*'
         telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
 
 
