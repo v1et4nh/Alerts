@@ -14,7 +14,7 @@ PICKLE_FILE = '../Data/clonex_last_floor.pickle'
 def get_last_message():
     dict_last_messages = load_pickle(PICKLE_FILE)
     try:
-        return dict_last_messages['counter']
+        return dict_last_messages['floor']
     except:
         return -100000
 
