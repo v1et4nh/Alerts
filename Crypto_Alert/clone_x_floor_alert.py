@@ -55,17 +55,19 @@ def getOSstats(collection=OPENSEA):
 def run_os_stats():
     stats = getOSstats()
     last_floor = get_last_message()
-    floor_price = float(stats['floor_price'])
+    floor_price = float(stats['floor_price'])-1
     message  = NAME + ': ' + str(floor_price)
     print(message)
     if floor_price < PRICE_ALARM and floor_price - last_floor != 0:
         eur, usd, = getETHprice()
         eur_price = int(eur * floor_price)
         usd_price = int(usd * floor_price)
+        url       = 'https://opensea.io/collection/' + OPENSEA
         message  += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
         message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
-        telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
+        message  += '\n\nOpen in [Opensea](' + url + ')'
+        telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
         dict_floor = {'floor': floor_price}
         save_pickle(dict_floor, PICKLE_FILE)
 
