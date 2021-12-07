@@ -102,8 +102,8 @@ def run_mint_counter():
     dict_data    = getEtherScanData()
     last_counter = get_last_message()
     mint_counter = getMintedAmount(dict_data) + 500  # 500 for the team
-    print(last_counter)
-    print(mint_counter)
+    console_output  = NAME + ': Last ' + str(last_counter) + ' | Now ' + str(mint_counter)
+    print(console_output)
     if mint_counter - last_counter > 0:
         maxSupply = getMaxSupply(dict_data)
         amount_left = maxSupply - mint_counter
