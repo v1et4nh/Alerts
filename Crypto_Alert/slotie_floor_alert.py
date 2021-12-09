@@ -7,7 +7,7 @@ from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 NAME        = 'Slotie'
 OPENSEA     = 'slotienft'
 SLEEP       = 5
-PRICE_ALARM = 0.61  # ETH
+PRICE_ALARM = 0.7  # ETH
 PICKLE_FILE = '../Data/slotie_last_floor.pickle'
 
 
