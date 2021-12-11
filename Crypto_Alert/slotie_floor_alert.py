@@ -58,7 +58,7 @@ def run_os_stats():
     floor_price = float(stats['floor_price'])
     message  = NAME + ': ' + str(floor_price)
     print(message)
-    if floor_price < PRICE_ALARM and floor_price - last_floor != 0:
+    if floor_price < PRICE_ALARM and abs(floor_price - last_floor) > 0.01:
         eur, usd, = getETHprice()
         eur_price = int(eur * floor_price)
         usd_price = int(usd * floor_price)
