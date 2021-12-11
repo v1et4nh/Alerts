@@ -50,7 +50,7 @@ def getMintedAmount(dict_data):
 def getCurrentMintPrice(dict_data):
     url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x235b6ea1&apikey='+dict_data['key']
     data = getData(url)
-    currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/10
+    currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/100
 
     return currentPrice
 
