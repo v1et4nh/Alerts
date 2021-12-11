@@ -2,10 +2,13 @@ import requests
 import time
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
-from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
+from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key
 
-
+NAME        = 'Meka Ape Club'
 PICKLE_FILE = '../Data/meka_ape_last_counter.pickle'
+ADDRESS     = '0x977dc06b51E14277a5ac047B44c78DBCc60A372B'   # Meka Ape Club
+OPENSEA     = 'mekaapeclubofficial'
+SLEEP       = 1
 
 
 def get_last_message():
@@ -13,13 +16,22 @@ def get_last_message():
     try:
         return dict_last_messages['counter']
     except:
-        return 10000
+        return -100000
 
 
-def getEtherScanData():
-    address = '0x977dc06b51E14277a5ac047B44c78DBCc60A372B'   # Meka Ape Club
+def getEtherScanData(address=ADDRESS):
     tmp_dict = {'address': address, 'key': etherscan_api_key}
     return tmp_dict
+
+
+def getData(url):
+    res = requests.get(url)
+    if res.status_code != 200:
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        if res.status_code != 200:
+            return 'RequestsError'
+    data = res.json()
+    return data
 
 
 def getMintedAmount(dict_data):
@@ -29,13 +41,7 @@ def getMintedAmount(dict_data):
     the first 8 characters -> 0xe777df20
     """
     url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x18160ddd&apikey='+dict_data['key']
-    res = requests.get(url)
-    if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        if res.status_code != 200:
-            return 'RequestsError'
-
-    data = res.json()
+    data = getData(url)
     mintedAmount = int(data['result'], 16)
 
     return mintedAmount
@@ -43,13 +49,7 @@ def getMintedAmount(dict_data):
 
 def getCurrentMintPrice(dict_data):
     url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x13faede6&apikey='+dict_data['key']
-    res = requests.get(url)
-    if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        if res.status_code != 200:
-            return 'RequestsError'
-
-    data = res.json()
+    data = getData(url)
     currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/10
 
     return currentPrice
@@ -57,13 +57,7 @@ def getCurrentMintPrice(dict_data):
 
 def getMaxSupply(dict_data):
     url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0xd5abeb01&apikey='+dict_data['key']
-    res = requests.get(url)
-    if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-        if res.status_code != 200:
-            return 'RequestsError'
-
-    data = res.json()
+    data = getData(url)
     maxSupply = int(data['result'], 16)
 
     return maxSupply
@@ -110,7 +104,7 @@ def getOSstats():
     return stats
 
 
-def run_meka_mint_counter():
+def run_mint_counter():
     dict_data    = getEtherScanData()
     last_counter = get_last_message()
     mint_counter = getMintedAmount(dict_data)
@@ -130,16 +124,19 @@ def run_meka_mint_counter():
         usd_price = int(usd * price)
         message += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
         telegram_bot_sendtext(message, bot_chatID='-1001778433678')
-        # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private)
         dict_counter = {'counter': mint_counter}
         save_pickle(dict_counter, PICKLE_FILE)
 
 
-if __name__ == '__main__':
+def main(time_intervall=SLEEP):
     while True:
         try:
             print(time.strftime('%X %x %Z'))
-            run_meka_mint_counter()
-            sleep(1)
+            run_mint_counter()
+            sleep(time_intervall)
         except:
             print('Restart...')
+
+
+if __name__ == '__main__':
+    main()
