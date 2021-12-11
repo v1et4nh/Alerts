@@ -8,7 +8,7 @@ NAME        = 'Alpha Girl Club'
 PICKLE_FILE = '../Data/agc_last_counter.pickle'
 ADDRESS     = '0x8c5029957bf42c61d19a29075dc4e00b626e5022'   # Alpha Girl Club
 OPENSEA     = 'alphagirlclub'
-SLEEP       = 1
+SLEEP       = 10
 
 
 def get_last_message():

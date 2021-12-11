@@ -8,7 +8,7 @@ NAME        = 'Rebelz'
 PICKLE_FILE = '../Data/rebelz_last_counter.pickle'
 ADDRESS     = '0x074C532B1659bC47065a6c4e784F8965971C3e7c'   # Rebelz
 OPENSEA     = 'rebelz'
-SLEEP       = 5
+SLEEP       = 30
 
 
 def get_last_message():
