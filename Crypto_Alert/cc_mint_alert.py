@@ -8,7 +8,7 @@ NAME        = 'Crypto Champions'
 PICKLE_FILE = '../Data/cc_last_counter.pickle'
 ADDRESS     = '0x97a923ed35351a1382e6bcbb5239fc8d93360085'   # Crypto Champions
 OPENSEA     = 'cryptochampionsnft'
-SLEEP       = 1
+SLEEP       = 0.5
 
 
 def get_last_message():
