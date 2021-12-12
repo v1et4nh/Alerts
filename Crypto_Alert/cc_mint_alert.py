@@ -105,7 +105,7 @@ def run_mint_counter():
     console_output  = NAME + ': Last ' + str(last_counter) + ' | Now ' + str(mint_counter)
     print(console_output)
     if mint_counter - last_counter > 0:
-        maxSupply   = 8888 - 150
+        maxSupply   = 8888 - 150 - 200  # Team + Platinum Members, who couldnt mint
         amount_left = maxSupply - mint_counter
         stats       = getOSstats()
         owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
