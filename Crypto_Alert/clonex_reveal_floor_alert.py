@@ -5,9 +5,9 @@ from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME        = 'Clone X - Revealed'
-OPENSEA     = 'clonex-rtfkt-tm'
+OPENSEA     = 'clonex'
 SLEEP       = 2
-PRICE_ALARM = 3  # ETH
+PRICE_ALARM = 10000  # ETH
 PICKLE_FILE = '../Data/clonex_revealed_last_floor.pickle'
 
 
