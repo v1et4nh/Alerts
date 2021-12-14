@@ -67,7 +67,7 @@ def run_os_stats():
         message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
         message  += '\n\nOpen in [Opensea](' + url + ')'
-        telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
+        telegram_bot_sendtext(message, bot_chatID='-1001790943800', disable_web_page_preview=True)
         dict_floor = {'floor': floor_price}
         save_pickle(dict_floor, PICKLE_FILE)
 
