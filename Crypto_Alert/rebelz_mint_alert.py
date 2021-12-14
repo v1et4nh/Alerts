@@ -138,4 +138,6 @@ def main(time_intervall=SLEEP):
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    print(time.strftime('%X %x %Z'))
+    run_mint_counter()
