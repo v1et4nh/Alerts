@@ -66,7 +66,7 @@ def run_os_stats():
         message  += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
         message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
-        message  += '\n\nOpen in [Opensea](' + url + ')'
+        message  += '\n\nView in [Opensea](' + url + ')'
         message  += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
         telegram_bot_sendtext(message, bot_chatID='-1001790943800', disable_web_page_preview=True)
         dict_floor = {'floor': floor_price}
