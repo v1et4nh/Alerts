@@ -4,10 +4,10 @@ from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
-NAME        = 'Clone X'
+NAME        = 'Clone X - MintVial'
 OPENSEA     = 'clonex-mintvial'
-SLEEP       = 5
-PRICE_ALARM = 3  # ETH
+SLEEP       = 2
+PRICE_ALARM = 100000  # ETH
 PICKLE_FILE = '../Data/clonex_last_floor.pickle'
 
 
@@ -56,18 +56,20 @@ def run_os_stats():
     stats = getOSstats()
     last_floor = get_last_message()
     floor_price = float(stats['floor_price'])
-    message  = NAME + ': ' + str(floor_price)
+    message  = NAME + ': ' + str(floor_price) + ' ETH | Remaining: ' + str(int(stats['total_supply']))
     print(message)
-    if floor_price < PRICE_ALARM and floor_price - last_floor != 0:
+    if floor_price < PRICE_ALARM and abs(floor_price - last_floor) > 0.01:
         eur, usd, = getETHprice()
         eur_price = int(eur * floor_price)
         usd_price = int(usd * floor_price)
         url       = 'https://opensea.io/collection/' + OPENSEA
         message  += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
+        message  += '\nMint Vials remaining: *' + str(int(stats['total_supply'])) + '*'
         message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
-        message  += '\n\nOpen in [Opensea](' + url + ')'
-        telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
+        message  += '\n\nView in [Opensea](' + url + ')'
+        message  += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
+        telegram_bot_sendtext(message, bot_chatID='-1001790943800', disable_web_page_preview=True)
         dict_floor = {'floor': floor_price}
         save_pickle(dict_floor, PICKLE_FILE)
 
