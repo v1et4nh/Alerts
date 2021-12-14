@@ -8,7 +8,7 @@ NAME        = 'Meta Legends'
 PICKLE_FILE = '../Data/metalegends_last_counter.pickle'
 ADDRESS     = '0xf9c362cdd6eeba080dd87845e88512aa0a18c615'   # Crypto Champions
 OPENSEA     = 'meta-legends'
-SLEEP       = 0.5
+SLEEP       = 5
 
 
 def get_last_message():
