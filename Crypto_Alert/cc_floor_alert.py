@@ -69,6 +69,7 @@ def run_os_stats():
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
         message  += '\n\nView in [Opensea](' + url + ')'
         message  += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
+        message  += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
         telegram_bot_sendtext(message, bot_chatID='-1001648482623', disable_web_page_preview=True)
         dict_floor = {'floor': floor_price}
         save_pickle(dict_floor, PICKLE_FILE)
