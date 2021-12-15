@@ -120,7 +120,7 @@ def run_mint_counter():
         usd_price   = int(usd * price)
         message    += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
         message    += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
-        message    += '\n[Join the Rebelz Discord Community](https://discord.gg/jxQdCyKeaD)'
+        message    += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
         telegram_bot_sendtext(message, bot_chatID='-1001639021916', disable_web_page_preview=True)
         # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
         dict_counter = {'counter': mint_counter}
