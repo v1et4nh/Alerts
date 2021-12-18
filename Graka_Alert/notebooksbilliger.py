@@ -38,7 +38,7 @@ def run_notebooksbilliger_alert(dict_graka):
         # Get html source code
         soup = get_soup(item['url'])
         if soup == 'RequestsError':
-            telegram_bot_sendtext('Error', bot_chatID=bot_chatID_private)
+            telegram_bot_sendtext('Error, cannot get data for notebooksbilliger', bot_chatID=bot_chatID_private)
             break
 
         # Check if in stock and price triggered
