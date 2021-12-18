@@ -8,12 +8,12 @@ from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, eth
 NAME        = 'Adidas'
 OPENSEA     = 'adidasofficial'
 SLEEP       = 1
-PICKLE_FILE = '../Data/adidas_last_time.pickle'
+PICKLE_FILE = '../Data/adidas_presale_last_time.pickle'
 ADDRESS     = '0x28472a58a490c5e09a238847f66a68a47cc76f0f'
 
 
 def getTime(dict_data):
-    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x3b44c8d0&apikey='+dict_data['key']
+    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x3e8d1c07&apikey='+dict_data['key']
     data = getData(url)
     data = int(data['result'], 16)
     ts = time.ctime(data)
@@ -46,7 +46,7 @@ def run_timer():
     console_output  = NAME + ': Last ' + str(last_time) + ' | Now ' + str(planned_time)
     print(console_output)
     if last_time != planned_time:
-        message     = '*PUBLIC SALE*'
+        message     = '*PRESALE*'
         message    += '\nTime changed from: ' + str(last_time)
         message    += '\nTo: *' + str(planned_time) + '*'
         message    += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
