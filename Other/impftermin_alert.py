@@ -27,9 +27,11 @@ def main():
         num_time = len(list_time)
         message = tmp_message + '\n\n' + message
 
-    message = '*Es sind Impftermine verfügbar*: [Komplette Liste](' + url + ')\n' + message
     if not message:
         message = 'Keine Termine mehr verfügbar'
+        print(message)
+    else:
+        message = '*Es sind Impftermine verfügbar*: [Komplette Liste](' + url + ')\n' + message
 
     message += '-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
     message += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
