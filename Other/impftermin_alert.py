@@ -28,7 +28,7 @@ def main():
         message = tmp_message + '\n\n' + message
 
     if not message:
-        message = 'Keine Termine mehr verfügbar'
+        message = 'Keine Termine mehr verfügbar\n\n'
         print(message)
     else:
         message = '*Es sind Impftermine verfügbar*: [Komplette Liste](' + url + ')\n' + message
