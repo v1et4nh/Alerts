@@ -35,7 +35,7 @@ def main():
     message += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
     last_message = load_pickle(PICKLE_FILE)
     if last_message != message:
-        telegram_bot_sendtext(message, bot_chatID='-1001452247737', disable_web_page_preview=True)
+        telegram_bot_sendtext(message, bot_chatID='-1001674194196', disable_web_page_preview=True)
         save_pickle(message, PICKLE_FILE)
     print(message)
 
