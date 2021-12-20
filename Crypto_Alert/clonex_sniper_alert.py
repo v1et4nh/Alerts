@@ -34,7 +34,7 @@ def getSniperStats(limit=7):
         col.append((name_col, []))
 
     # Get Table
-    for idx, (price, score, rank, url, date) in enumerate(tr_elements):
+    for idx, (thumb, price, score, rank, url, date) in enumerate(tr_elements):
         if idx == 0:
             continue
         price = round(float(price.text_content()), 2)
