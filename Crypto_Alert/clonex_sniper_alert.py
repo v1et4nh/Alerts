@@ -37,6 +37,7 @@ def getSniperStats(limit=7):
     for idx, (thumb, price, score, rank, url, date) in enumerate(tr_elements):
         if idx == 0:
             continue
+        thumb = ''
         price = round(float(price.text_content()), 2)
         score = int(score.text_content())
         rank  = int(rank.text_content().split()[0])
@@ -44,14 +45,16 @@ def getSniperStats(limit=7):
         date  = date.text_content()
 
         if price < 5 or score > 500:
-            col[0][1].append(price)
-            col[1][1].append(score)
-            col[2][1].append(rank)
-            col[3][1].append(url)
-            col[4][1].append(date)
+            col[0][1].append(thumb)
+            col[1][1].append(price)
+            col[2][1].append(score)
+            col[3][1].append(rank)
+            col[4][1].append(url)
+            col[5][1].append(date)
 
     tmp_dict = {title:column for (title, column) in col}
     df = pd.DataFrame(tmp_dict)
+    df = df.drop(columns=['Thumb'])
     df = df.drop(columns=['Rang'])
     df = df.sort_values(['Preis', 'Score'])
     stats = getOSstats()
@@ -64,7 +67,7 @@ def getSniperStats(limit=7):
         message = f"*Floor Price: {format(floor_price, '.2f')}*\n"
         message += '\nURL | Price | Score'
         for row in df.itertuples():
-            message += f"\n[link]({row.Link})  |  {format(row.Preis, '.2f')}  |  {row.Score}"
+            message += f"\n[link]({row.Traits})  |  {format(row.Preis, '.2f')}  |  {row.Score}"
         telegram_bot_sendtext(message, bot_chatID='-1001766067718', disable_web_page_preview=True)
         save_pickle(df, PICKLE_FILE)
 
