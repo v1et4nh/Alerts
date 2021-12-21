@@ -29,7 +29,7 @@ def telegram_bot_sendtext(bot_message, bot_token=bot_token, bot_chatID=bot_chatI
     return response.json()
 
 
-def telegram_bot_sendphoto(str_picpath, bot_token=bot_token, bot_chatID=bot_chatID_group):
+def telegram_bot_sendphoto_file(str_picpath, bot_token=bot_token, bot_chatID=bot_chatID_group):
     """
     :param str_picpath: str, path to the image
     :param bot_token: str, Token of your bot defined @botFather, default: from environment variable
@@ -43,7 +43,19 @@ def telegram_bot_sendphoto(str_picpath, bot_token=bot_token, bot_chatID=bot_chat
     return img_stat
 
 
+def telegram_bot_sendphoto_url(url_pic, bot_token=bot_token, bot_chatID=bot_chatID_group):
+    """
+    :param str_picpath: str, path to the image
+    :param bot_token: str, Token of your bot defined @botFather, default: from environment variable
+    :param bot_chatID: str, ID of the chat you want to send the message to (could be an individual chat or channel),
+    default: from environment variable
+    :return:
+    """
+    send_photo = 'https://api.telegram.org/bot' + bot_token + '/sendPhoto?chat_id=' + bot_chatID + '&photo=' + url_pic
+    img_stat = requests.get(send_photo)
+    return img_stat
+
+
 if __name__ == '__main__':
-    url = 'https://www.mindfactory.de/product_info.php/12GB-MSI-GeForce-RTX-3080-Ti-GAMING-X-TRIO-Aktiv-PCIe-4-0-x16-_1414347.html'
-    url = url.replace('_', '\_')
-    telegram_bot_sendtext(url, bot_chatID=bot_chatID_private)
+    url = 'https://lh3.googleusercontent.com/vy0zF0QPZuGGLqcwC3C1vk5fdlhFHatUS-v6JKcrnlMv8EeX071MVTebFcCj1g1XHZ_iLW0wMZWkO540Yp9OsDMIXhAbUj-eNfShAA=s250'
+    telegram_bot_sendphoto_url(url, bot_chatID=bot_chatID_private)
