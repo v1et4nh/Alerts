@@ -47,7 +47,7 @@ def get_last_sale():
         message  += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
 
         last_messages = get_last_message()
-        if len(last_messages) > check_num:
+        if len(last_messages) > check_num + 5:
             last_messages.pop(0)
         if message not in last_messages:
             telegram_bot_sendtext(message, bot_chatID='-1001661074217')
