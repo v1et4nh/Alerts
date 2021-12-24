@@ -2,7 +2,7 @@ import requests
 from Functions.telegrambot import telegram_bot_sendtext, bot_v1_gasfeebot_token, etherscan_api_key
 from Functions.file_handler import save_pickle, load_pickle
 
-PICKLE_FILE = '../Data/v1_gasfeebot_ids.pickle'
+PICKLE_FILE = '../Data/v1_gasfeebot_ids_project.pickle'
 
 
 def get_gasfee():

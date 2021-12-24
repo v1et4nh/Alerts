@@ -5,7 +5,7 @@ from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
 
 NAME        = 'More than Gamers'
-PICKLE_FILE = '../Data/mtg_last_counter.pickle'
+PICKLE_FILE = '../../Data/mtg_last_counter.pickle'
 ADDRESS     = '0x49907029e80de1cbb3a46fd44247bf8ba8b5f12f'
 OPENSEA     = 'morethangamersnftmtg'
 SLEEP       = 0.5

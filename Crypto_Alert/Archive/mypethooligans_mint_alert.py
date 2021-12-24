@@ -5,7 +5,7 @@ from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
 
 NAME        = 'My Pet Hooligan'
-PICKLE_FILE = '../Data/mypethooligan_last_counter.pickle'
+PICKLE_FILE = '../../Data/mypethooligan_last_counter.pickle'
 ADDRESS     = '0x09233d553058c2F42ba751C87816a8E9FaE7Ef10'   # Crypto Champions
 OPENSEA     = 'mypethooligan'
 SLEEP       = 1

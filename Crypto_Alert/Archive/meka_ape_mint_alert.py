@@ -2,13 +2,13 @@ import requests
 import time
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
-from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
+from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key
 
-NAME        = 'Meta Legends'
-PICKLE_FILE = '../Data/metalegends_last_counter.pickle'
-ADDRESS     = '0xf9c362cdd6eeba080dd87845e88512aa0a18c615'   # Crypto Champions
-OPENSEA     = 'meta-legends'
-SLEEP       = 5
+NAME        = 'Meka Ape Club'
+PICKLE_FILE = '../../Data/meka_ape_last_counter.pickle'
+ADDRESS     = '0x977dc06b51E14277a5ac047B44c78DBCc60A372B'   # Meka Ape Club
+OPENSEA     = 'mekaapeclubofficial'
+SLEEP       = 1
 
 
 def get_last_message():
@@ -48,7 +48,7 @@ def getMintedAmount(dict_data):
 
 
 def getCurrentMintPrice(dict_data):
-    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0xc1173250&apikey='+dict_data['key']
+    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x13faede6&apikey='+dict_data['key']
     data = getData(url)
     currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/10
 
@@ -90,39 +90,40 @@ def getETHprice():
     return peur_val, pusd_val, priceinfo
 
 
-def getOSstats(collection=OPENSEA):
-    url = "https://api.opensea.io/api/v1/collection/" + collection
-    data = getData(url)
+def getOSstats():
+    url = "https://api.opensea.io/api/v1/collection/mekaapeclubofficial"
+    res = requests.get(url)
+    if res.status_code != 200:
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        if res.status_code != 200:
+            return 'RequestsError'
+
+    data = res.json()
     stats = data['collection']['stats']
 
     return stats
 
 
 def run_mint_counter():
-    dict_data       = getEtherScanData()
-    last_counter    = get_last_message()
-    mint_counter    = getMintedAmount(dict_data)
-    console_output  = NAME + ': Last ' + str(last_counter) + ' | Now ' + str(mint_counter)
-    print(console_output)
+    dict_data    = getEtherScanData()
+    last_counter = get_last_message()
+    mint_counter = getMintedAmount(dict_data)
+    print(last_counter)
+    print(mint_counter)
     if mint_counter - last_counter > 0:
-        maxSupply   = 12345
+        maxSupply = getMaxSupply(dict_data)
         amount_left = maxSupply - mint_counter
-        stats       = getOSstats()
-        owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
-        message     = 'Minted: *' + str(mint_counter) + '* | Holders: *' + str(stats['num_owners']) + '*'
-        message    += '\nOwner-to-Mint-Ratio: *' + str(owner_mint_ratio) + '*'
-        message    += '\nLeft: *' + str(amount_left) + '*'
-        message    += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH*'
-        message    += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
-        price       = getCurrentMintPrice(dict_data)
+        stats = getOSstats()
+        message  = 'Minted: *' + str(mint_counter) + '* | Holders: *' + str(stats['num_owners']) + '*'
+        message += '\nLeft: *' + str(amount_left) + '*'
+        message += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH*'
+        message += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
+        price = getCurrentMintPrice(dict_data)
         eur, usd, _ = getETHprice()
-        eur_price   = int(eur * price)
-        usd_price   = int(usd * price)
-        message    += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
-        message    += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
-        message    += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
-        telegram_bot_sendtext(message, bot_chatID='-1001639021916', disable_web_page_preview=True)
-        # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
+        eur_price = int(eur * price)
+        usd_price = int(usd * price)
+        message += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
+        telegram_bot_sendtext(message, bot_chatID='-1001778433678')
         dict_counter = {'counter': mint_counter}
         save_pickle(dict_counter, PICKLE_FILE)
 
