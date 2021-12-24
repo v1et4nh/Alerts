@@ -63,6 +63,7 @@ def main(time_intervall=SLEEP):
             sleep(time_intervall)
         except:
             print('Restart...')
+            sleep(time_intervall)
 
 
 if __name__ == '__main__':
