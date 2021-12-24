@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 bot_token              = str(os.getenv('TELEGRAM_BOT_TOKEN'))           # Replace with your own bot_token
 bot_v1_gasfeebot_token = str(os.getenv('TELEGRAM_V1_GASFEEBOT_TOKEN'))  # Replace with your own bot_token
+bot_v1_floorbot_token  = str(os.getenv('TELEGRAM_V1_FLOORBOT_TOKEN'))   # Replace with your own bot_token
 bot_chatID_group       = str(os.getenv('TELEGRAM_BOT_CHATID_GROUP'))    # Replace with your own bot_chatID
 bot_chatID_private     = str(os.getenv('TELEGRAM_BOT_CHATID_PRIVATE'))  # Replace with your own bot_chatID
 etherscan_api_key      = str(os.getenv('ETHERSCAN_API_KEY'))            # Replace with your own apy key

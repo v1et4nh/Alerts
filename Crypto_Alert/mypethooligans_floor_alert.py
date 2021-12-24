@@ -6,8 +6,8 @@ from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME        = 'My Pet Hooligans'
 OPENSEA     = 'mypethooligan'
-SLEEP       = 1
-PRICE_ALARM = 10000  # ETH
+SLEEP       = 30
+PRICE_ALARM = 100000  # ETH
 PICKLE_FILE = '../Data/mypethooligan_last_floor.pickle'
 
 

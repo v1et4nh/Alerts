@@ -8,8 +8,12 @@ PICKLE_FILE = '../Data/impftermin_last_messages.pickle'
 SLEEP = 60
 
 
-def main():
-    url = "https://www.docvisit.de/kalender/blankenfeld/list"
+def main(type=0):
+    if type:
+        url_type = '?type=' + str(type)
+    else:
+        url_type = ''
+    url = "https://www.docvisit.de/kalender/blankenfeld/list" + url_type
     soup = get_soup(url)
     list_days = soup.findAll('h4')
     message = ''
@@ -46,7 +50,8 @@ def main_loop(time_intervall=SLEEP):
     while True:
         try:
             print(time.strftime('%X %x %Z'))
-            main()
+            main(1558164)
+            main(1554376)
             sleep(time_intervall)
         except:
             print('Restart...')

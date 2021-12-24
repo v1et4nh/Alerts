@@ -6,8 +6,8 @@ from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME        = 'Clone X - Revealed'
 OPENSEA     = 'clonex'
-SLEEP       = 2
-PRICE_ALARM = 10000  # ETH
+SLEEP       = 10
+PRICE_ALARM = 999999  # ETH
 PICKLE_FILE = '../Data/clonex_revealed_last_floor.pickle'
 
 

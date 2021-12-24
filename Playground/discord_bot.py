@@ -7,7 +7,7 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
 from Functions.telegrambot import etherscan_api_key
-from Crypto_Alert.mint_alert import getETHprice, getEtherScanData, getMintedAmount, getCurrentMintPrice
+from Crypto_Alert.Archive.mint_alert import getETHprice, getEtherScanData, getMintedAmount, getCurrentMintPrice
 
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')

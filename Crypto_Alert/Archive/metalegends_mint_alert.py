@@ -4,11 +4,11 @@ from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
 
-NAME        = 'Crypto Champions'
-PICKLE_FILE = '../Data/cc_last_counter.pickle'
-ADDRESS     = '0x97a923ed35351a1382e6bcbb5239fc8d93360085'   # Crypto Champions
-OPENSEA     = 'cryptochampionsnft'
-SLEEP       = 0.5
+NAME        = 'Meta Legends'
+PICKLE_FILE = '../../Data/metalegends_last_counter.pickle'
+ADDRESS     = '0xf9c362cdd6eeba080dd87845e88512aa0a18c615'   # Crypto Champions
+OPENSEA     = 'meta-legends'
+SLEEP       = 5
 
 
 def get_last_message():
@@ -48,15 +48,15 @@ def getMintedAmount(dict_data):
 
 
 def getCurrentMintPrice(dict_data):
-    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x235b6ea1&apikey='+dict_data['key']
+    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0xc1173250&apikey='+dict_data['key']
     data = getData(url)
-    currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/100
+    currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/10
 
     return currentPrice
 
 
 def getMaxSupply(dict_data):
-    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0x5588473c&apikey='+dict_data['key']
+    url = 'https://api.etherscan.io/api?module=proxy&action=eth_call&to='+dict_data['address']+'&data=0xd5abeb01&apikey='+dict_data['key']
     data = getData(url)
     maxSupply = int(data['result'], 16)
 
@@ -105,7 +105,7 @@ def run_mint_counter():
     console_output  = NAME + ': Last ' + str(last_counter) + ' | Now ' + str(mint_counter)
     print(console_output)
     if mint_counter - last_counter > 0:
-        maxSupply   = 8888 - 150 - 200  # Team + Platinum Members, who couldnt mint
+        maxSupply   = 12345
         amount_left = maxSupply - mint_counter
         stats       = getOSstats()
         owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
@@ -120,8 +120,8 @@ def run_mint_counter():
         usd_price   = int(usd * price)
         message    += '\n\nCurrent Mint Price: *' + str(price) + ' ETH* (' + str(eur_price) + ' EUR | ' + str(usd_price) + ' USD)'
         message    += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
-        message    += '\n[Join the Rebelz Discord Community](https://discord.gg/jxQdCyKeaD)'
-        telegram_bot_sendtext(message, bot_chatID='-1001648482623', disable_web_page_preview=True)
+        message    += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
+        telegram_bot_sendtext(message, bot_chatID='-1001639021916', disable_web_page_preview=True)
         # telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
         dict_counter = {'counter': mint_counter}
         save_pickle(dict_counter, PICKLE_FILE)

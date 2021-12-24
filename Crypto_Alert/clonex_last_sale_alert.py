@@ -6,7 +6,7 @@ from Functions.telegrambot import telegram_bot_sendtext, telegram_bot_sendphoto_
 
 COLLECTION  = 'clonex'
 PICKLE_FILE = '../Data/clonex_last_sale.pickle'
-SLEEP       = 2
+SLEEP       = 10
 
 
 def get_asset_list(limit=20, collection='', order_by='', order_direction='desc', owner=''):

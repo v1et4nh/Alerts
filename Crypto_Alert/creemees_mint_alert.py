@@ -8,7 +8,7 @@ NAME        = 'Creemees'
 PICKLE_FILE = '../Data/creemees _last_counter.pickle'
 ADDRESS     = '0x74e607e678f7d92f62ed56e41e1804911040cebf'   # Crypto Champions
 OPENSEA     = 'creemees'
-SLEEP       = 1
+SLEEP       = 3600
 
 
 def get_last_message():

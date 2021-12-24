@@ -6,7 +6,7 @@ from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME         = 'Crypto Champions'
 OPENSEA      = 'cryptochampionsnft'
-SLEEP        = 5
+SLEEP        = 30
 PRICE_ALARM  = 999  # ETH
 PICKLE_FILE  = '../Data/cc_last_floor.pickle'
 ORIGIN_PRICE = 0.25

@@ -8,7 +8,7 @@ NAME        = 'Metaclub Society'
 PICKLE_FILE = '../Data/metaclub_last_counter.pickle'
 ADDRESS     = '0xc0a2632641449400ec2c54b94fa371c1d85406fc'
 OPENSEA     = 'metaclubbers'
-SLEEP       = 0.5
+SLEEP       = 60
 
 
 def get_last_message():

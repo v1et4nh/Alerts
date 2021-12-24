@@ -5,7 +5,7 @@ from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_chatID_private
 
 
-PICKLE_FILE = '../Data/rebelz_last_counter.pickle'
+PICKLE_FILE = '../../Data/rebelz_last_counter.pickle'
 
 
 def get_last_message():
