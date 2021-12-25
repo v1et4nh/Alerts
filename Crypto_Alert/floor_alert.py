@@ -45,21 +45,30 @@ def getETHprice():
 
 
 def getOSstats(collection):
-    url = "https://api.opensea.io/api/v1/collection/" + collection
-    data = getData(url)
+    url   = "https://api.opensea.io/api/v1/collection/" + collection
+    data  = getData(url)
     stats = data['collection']['stats']
 
     return stats
 
 
+def get_name(collection):
+    url   = "https://api.opensea.io/api/v1/collection/" + collection
+    data  = getData(url)
+    name  = data['collection']['name']
+
+    return name
+
+
 def get_current_floor_price(collection):
+    name  = get_name(collection)
     stats = getOSstats(collection)
     floor_price = float(stats['floor_price'])
     eur, usd, = getETHprice()
     eur_price = int(eur * floor_price)
     usd_price = int(usd * floor_price)
     url = 'https://opensea.io/collection/' + collection
-    message = f"*{collection}*\nFloor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)"
+    message = f"*{name}*\nFloor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)"
     message += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
     message += '\nHolders: *' + str(stats['num_owners']) + '*'
     message += '\n\nView in [Opensea](' + url + ')'
