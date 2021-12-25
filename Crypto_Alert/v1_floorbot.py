@@ -21,7 +21,7 @@ if 'Error' in dict_user:
     dict_user = {}
 
 welcome_message = """
-Hi! I am an Opensea Floor Alert Bot. I will send you a message every time the floor price of your chosen project changes. Which project do you want to track?
+Hi! I am an Opensea Floor Alert Bot. I will send you a message every time the floor price of your chosen collection changes. Which collection do you want to track?
 \nPlease send me the opensea-url \n(e.g. https://opensea.io/collection/clonex):
 """
 
@@ -29,7 +29,7 @@ help_message = """
 /start - Set an opensea-url and start the alert
 /stop - Stop the alert
 /floor - Get the current floor price
-/project - Show the current tracked project
+/collection - Show the current tracked collection
 /donate - Buy me a coffee or even better: a NFT ;)
 /contact - Contact me regarding the development of the bot
 /help - Show the command list of this bot
@@ -120,7 +120,7 @@ def set_url(message):
             chat_id   = str(message.chat.id)
             dict_user[chat_id] = project
             save_pickle(dict_user, PICKLE_FILE)
-            bot.send_message(message.chat.id, f"Success! Floor price of the project '{project}' will be tracked!")
+            bot.send_message(message.chat.id, f"Success! Floor price of the collection '{project}' will be tracked!")
         else:
             bot.send_message(message.chat.id, f"Invalid input! Please make sure it is an opensea-url and try again: ")
     except:
