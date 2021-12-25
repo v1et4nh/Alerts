@@ -5,7 +5,7 @@ from telebot.types import InlineKeyboardButton as ikb
 from time import sleep
 from dotenv import load_dotenv
 from Functions.file_handler import save_pickle, load_pickle
-from floor_alert import get_current_floor_price
+from floor_alert import get_current_floor_price, get_name
 
 PICKLE_FILE = '../Data/v1_floorbot_ids_project.pickle'
 
@@ -117,10 +117,11 @@ def set_url(message):
         url = message.text
         if "opensea.io" in url:
             project   = url[url.rfind('/')+1:]
+            name      = get_name(project)
             chat_id   = str(message.chat.id)
             dict_user[chat_id] = project
             save_pickle(dict_user, PICKLE_FILE)
-            bot.send_message(message.chat.id, f"Success! Floor price of the collection '{project}' will be tracked!")
+            bot.send_message(message.chat.id, f"Success! Floor price of the collection '{name}' will be tracked!")
         else:
             bot.send_message(message.chat.id, f"Invalid input! Please make sure it is an opensea-url and try again: ")
     except:
