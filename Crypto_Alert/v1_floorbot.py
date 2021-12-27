@@ -1,53 +1,31 @@
 import os
+import time
 import telebot
+from time import sleep
+from bot_messages import *
+from dotenv import load_dotenv
 from telebot.types import InlineKeyboardMarkup as ikm
 from telebot.types import InlineKeyboardButton as ikb
-from time import sleep
-from dotenv import load_dotenv
-from Functions.file_handler import save_pickle, load_pickle
 from floor_alert import get_current_floor_price, get_name
+from Functions.file_handler import save_pickle, load_pickle
+
 
 PICKLE_FILE = '../Data/v1_floorbot_ids_collection.pickle'
 
 # Load environment variables
 load_dotenv()
-bot_token = str(os.getenv('TELEGRAM_V1_FLOORBOT_TOKEN'))   # Replace with your own bot_token
+bot_token       = str(os.getenv('TELEGRAM_V1_FLOORBOT_TOKEN'))        # Replace with your own bot_token
+private_chat_id = str(os.getenv('TELEGRAM_V1ET4NH_CHATID'))     # Replace with your own chat_id
 
 # Start Bot
 bot = telebot.TeleBot(bot_token, parse_mode='Markdown')
 
-dict_user = load_pickle(PICKLE_FILE)
-if 'Error' in dict_user:
-    dict_user = {}
 
-welcome_message = """
-Hi! I am your personal Opensea Floor Alert Bot.\n
-I will send you a message if the floor price of your chosen collection changes or falls below your self-defined threshold.\n
-Which collection do you want to track?
-\nPlease send me the opensea-url \n(e.g. https://opensea.io/collection/clonex):
-"""
-
-help_message = """
-/start - Set an opensea-url and start the alert
-/stop - Stop the alert
-/floor - Get the current floor price
-/collection - Show the current tracked collection
-/donate - Buy me a coffee or even better: a NFT ;)
-/contact - Contact me regarding the development of the bot
-/help - Show the command list of this bot
-"""
-
-donate_message = """
-I am free of charge, but I do still have some running costs. 
-My developer will be very grateful if you support him by sending him a little donation:
-
-*_Ethereum-Address_*: 
-0x250103C32239Dad3F31D121d75Da22353C6FF429\n
-*_ENS-Address_*: 
-vietanh.eth\n
-*_Paypal_*: 
-https://paypal.me/v1et4nh
-"""
+def load_dict_user():
+    dict_user = load_pickle(PICKLE_FILE)
+    if 'Error' in dict_user:
+        dict_user = {}
+    return dict_user
 
 
 def is_number_tryexcept(s):
@@ -73,10 +51,17 @@ def get_update_message():
 
 @bot.message_handler(commands=['start', 'home'])
 def send_welcome(message):
-    chat_id = str(message.chat.id)
+    dict_user = load_dict_user()
+    chat_id   = str(message.chat.id)
+    user      = str(message.from_user.username)
+    print(time.strftime('%X %x %Z'))
+    print(f"{user}: {message.text}")
     if chat_id not in dict_user:
-        dict_user[chat_id] = {}
-    bot.send_message(message.chat.id, welcome_message, disable_web_page_preview=True)
+        dict_user[chat_id] = {'username': user, 'collection': '', 'threshold': 0}
+        send_message = f"{user} joined your Floor Bot"
+        bot.send_message(-680483002, send_message)
+        save_pickle(dict_user, PICKLE_FILE)
+    bot.send_message(message.chat.id, floorbot_welcome_message, disable_web_page_preview=True)
 
 
 @bot.message_handler(commands=['donate'])
@@ -93,7 +78,7 @@ def contact(message):
 
 @bot.message_handler(commands=['help'])
 def help(message):
-    bot.send_message(message.chat.id, help_message)
+    bot.send_message(message.chat.id, floorbot_help_message)
 
 
 @bot.message_handler(commands=['floor'])
@@ -109,22 +94,23 @@ def floor(message):
 def collection(message):
     chat_id   = str(message.chat.id)
     dict_user = load_pickle(PICKLE_FILE)
-    try:
-        collection = dict_user[chat_id]['collection']
+    collection = dict_user[chat_id]['collection']
+    if collection:
         url = 'https://opensea.io/collection/' + collection
         message = f"You are currently tracking [{collection}]({url})"
-        bot.send_message(chat_id, message)
-    except:
+    else:
         message = f"You are not tracking any collection, yet.\n" \
                   f"Please define a collection first by sending me the opensea-url."
-        bot.send_message(chat_id, message)
+    bot.send_message(chat_id, message)
 
 
 @bot.message_handler(commands=['stop'])
 def stop_alert(message):
     chat_id = str(message.chat.id)
+    dict_user = load_dict_user()
+    user = str(message.from_user.username)
     if chat_id in dict_user:
-        dict_user[chat_id] = {}
+        dict_user[chat_id] = {'username': user, 'collection': '', 'threshold': 0}
         save_pickle(dict_user, PICKLE_FILE)
     bot.send_message(message.chat.id, 'Alert stopped! Run alert again by sending /start')
 
@@ -132,7 +118,7 @@ def stop_alert(message):
 ##########     Admin     ##########
 @bot.message_handler(commands=['getUserCount'])
 def getuser(message):
-    if message.chat.id == 383615621 or message.chat.id == 1899354791:
+    if message.chat.id == int(private_chat_id) or message.chat.id == 1899354791:
         dict_user = load_pickle(PICKLE_FILE)
         count = len(dict_user)
         bot.send_message(message.chat.id, "Number of User using this bot: " + str(count))
@@ -142,13 +128,12 @@ def getuser(message):
 
 @bot.message_handler(commands=['update'])
 def update(message):
-    if message.chat.id == 383615621:
-        dict_user = load_pickle(PICKLE_FILE)
+    if message.chat.id == int(private_chat_id):
+        dict_user     = load_pickle(PICKLE_FILE)
         send_message  = get_update_message()
         send_message += f"\n\nList of chatIDs:"
         for chat_id in dict_user:
-            send_message += f"\n{chat_id}"
-        print(send_message)
+            send_message += f"\n{dict_user[chat_id]['username']}"
         bot.send_message(message.chat.id, send_message, disable_web_page_preview=True)
     else:
         bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
@@ -156,7 +141,7 @@ def update(message):
 
 @bot.message_handler(commands=['updateAll'])
 def update_all(message):
-    if message.chat.id == 383615621:
+    if message.chat.id == int(private_chat_id):
         dict_user = load_pickle(PICKLE_FILE)
         for chat_id in dict_user:
             bot.send_message(chat_id, get_update_message(), disable_web_page_preview=True)
@@ -168,12 +153,15 @@ def update_all(message):
 @bot.message_handler(func=lambda message: True)
 def set_url(message):
     try:
-        tmp_text = message.text
-        chat_id = str(message.chat.id)
+        dict_user = load_dict_user()
+        tmp_text  = message.text
+        chat_id   = str(message.chat.id)
+        print(time.strftime('%X %x %Z'))
+        print(f"{chat_id}: {tmp_text}")
         if "opensea.io" in tmp_text:
-            project   = tmp_text[tmp_text.rfind('/')+1:]
-            name      = get_name(project)
-            dict_user[chat_id] = {'collection': project, 'threshold': 0}
+            collection = tmp_text[tmp_text.rfind('/')+1:]
+            name       = get_name(collection)
+            dict_user[chat_id]['collection'] = collection
             save_pickle(dict_user, PICKLE_FILE)
             message_to_send  = f"Success!\n" \
                                f"Floor price of the collection\n" \
@@ -188,8 +176,8 @@ def set_url(message):
             if 'collection' in dict_user[chat_id]:
                 dict_user[chat_id]['threshold'] = floor_threshold
                 save_pickle(dict_user, PICKLE_FILE)
-                project = dict_user[chat_id]['collection']
-                name = get_name(project)
+                collection = dict_user[chat_id]['collection']
+                name = get_name(collection)
                 if floor_threshold == 0:
                     message_to_send = f"Success!\n" \
                                       f"Collection: *{name}*\n" \
