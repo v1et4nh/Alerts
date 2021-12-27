@@ -119,10 +119,11 @@ def run_os_stats():
                                 f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
                     telegram_bot_sendtext(message, bot_chatID=chat_id, bot_token=bot_v1_floorbot_token, disable_web_page_preview=True)
         except:
-            error_counter += 1
-            send_message = f"*Floor Bot - Error*\n" \
-                           f"{error_counter}) {chat_id} failed"
-            telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
+            if dict_user[chat_id]['collection']:
+                error_counter += 1
+                send_message = f"*Floor Bot - Error*\n" \
+                               f"{error_counter}) {chat_id} failed"
+                telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
     save_pickle(dict_floor, PICKLE_FILE_FLOOR)
 
 
