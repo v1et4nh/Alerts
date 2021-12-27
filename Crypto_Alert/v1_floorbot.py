@@ -90,8 +90,13 @@ def floor(message):
     chat_id    = str(message.chat.id)
     dict_user  = load_pickle(PICKLE_FILE)
     collection = dict_user[chat_id]['collection']
-    message    = get_current_floor_price(collection)
-    bot.send_message(chat_id, message, disable_web_page_preview=True)
+    if collection:
+        send_message = get_current_floor_price(collection)
+        bot.send_message(chat_id, send_message, disable_web_page_preview=True)
+    else:
+        send_message = f"You are not tracking any collection, yet.\n" \
+                       f"Please define a collection first by sending me the opensea-url."
+        bot.send_message(chat_id, send_message)
 
 
 @bot.message_handler(commands=['collection'])
@@ -101,11 +106,11 @@ def collection(message):
     collection = dict_user[chat_id]['collection']
     if collection:
         url = 'https://opensea.io/collection/' + collection
-        message = f"You are currently tracking [{collection}]({url})"
+        send_message = f"You are currently tracking [{collection}]({url})"
     else:
-        message = f"You are not tracking any collection, yet.\n" \
-                  f"Please define a collection first by sending me the opensea-url."
-    bot.send_message(chat_id, message)
+        send_message = f"You are not tracking any collection, yet.\n" \
+                       f"Please define a collection first by sending me the opensea-url."
+    bot.send_message(chat_id, send_message)
 
 
 @bot.message_handler(commands=['stop'])
@@ -184,7 +189,7 @@ def set_url(message):
         elif is_number_tryexcept(tmp_text):
             tmp_text = tmp_text.replace(',', '.')
             floor_threshold = float(tmp_text)
-            if 'collection' in dict_user[chat_id]:
+            if dict_user[chat_id]['collection']:
                 dict_user[chat_id]['threshold'] = floor_threshold
                 save_pickle(dict_user, PICKLE_FILE)
                 collection = dict_user[chat_id]['collection']
