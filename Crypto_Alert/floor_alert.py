@@ -61,19 +61,27 @@ def get_name(collection):
 
 
 def get_current_floor_price(collection):
-    name  = get_name(collection)
     stats = getOSstats(collection)
     floor_price = float(stats['floor_price'])
     eur, usd, = getETHprice()
     eur_price = int(eur * floor_price)
     usd_price = int(usd * floor_price)
+    try:
+        ratio = round(stats['count'] / stats['num_owners'], 2)
+    except:
+        ratio = 0
     url = 'https://opensea.io/collection/' + collection
-    message = f"*{name}*\nFloor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)"
-    message += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
-    message += '\nHolders: *' + str(stats['num_owners']) + '*'
-    message += '\n\nView in [Opensea](' + url + ')'
-    message += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
-    message += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
+    message = f"*{get_name(collection)}*\n" \
+              f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
+              f"NFTs: *{int(stats['count'])}*\n" \
+              f"Holders: *{stats['num_owners']}*\n" \
+              f"NFT-to-Holders-Ratio: *{ratio}*\n" \
+              f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
+              f"\nView on [Opensea]({url})"
+    message += f"\n\n-----\n" \
+               f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
+               f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
+               f"Love the bots? -> /donate <3"
 
     return message
 
@@ -115,8 +123,9 @@ def run_os_stats():
                                 f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
                                 f"\nView on [Opensea]({url})"
                     message  += f"\n\n-----\n" \
-                                f"If you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)\n" \
-                                f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
+                                f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
+                                f"Want to see more? -> [Website](https://linktr.ee/v1et4nh)\n" \
+                                f"Love the bots? -> /donate <3"
                     telegram_bot_sendtext(message, bot_chatID=chat_id, bot_token=bot_v1_floorbot_token, disable_web_page_preview=True)
         except:
             if dict_user[chat_id]['collection']:
