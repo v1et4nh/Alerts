@@ -145,6 +145,13 @@ def update_all(message):
         dict_user = load_pickle(PICKLE_FILE)
         for chat_id in dict_user:
             bot.send_message(chat_id, get_update_message(), disable_web_page_preview=True)
+        send_message = f"\n\nUpdates sent to:"
+        for chat_id in dict_user:
+            try:
+                send_message += f"\n{dict_user[chat_id]['username']}"
+            except:
+                send_message += f"\n{chat_id}"
+        bot.send_message(private_chat_id, send_message, disable_web_page_preview=True)
     else:
         bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
 
