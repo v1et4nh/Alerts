@@ -39,17 +39,18 @@ def is_number_tryexcept(s):
 
 
 def get_update_message():
-    send_message  = f"Update: *Bot Fix 1.0*!\n" \
+    send_message  = f"Update: *Bot Fix 0.1*!\n" \
                     f"- Automatic alerts should work now\n" \
-                    f"- New Function: Get alerted only if floor falls below predefined threshold\n" \
+                    f"- New Function: Get alerted only if floor falls below a threshold\n" \
                     f"- For each collection an alert bot can be configured:\n" \
-                    f"1. Create a group\n" \
-                    f"2. Find 'v1 Floor Bot' and add it to the group\n" \
-                    f"3. Enjoy\n\n" \
+                    f"     1. Create a group\n" \
+                    f"     2. Find 'v1 Floor Bot' and add it to the group\n" \
+                    f"     3. Enjoy\n\n" \
                     f"Please restart by sending /start"
     send_message += f"\n\n-----\n" \
                     f"If you still face any issues please [contact me](tg://user?id=383615621) :)\n" \
-                    f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
+                    f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
+                    f"Love the bot? -> /donate <3"
     return send_message
 
 
@@ -142,7 +143,10 @@ def update(message):
         send_message  = get_update_message()
         send_message += f"\n\nList of chatIDs:"
         for chat_id in dict_user:
-            send_message += f"\n{dict_user[chat_id]['username']}"
+            try:
+                send_message += f"\n{dict_user[chat_id]['username']}"
+            except:
+                send_message += f"\n{chat_id}"
         bot.send_message(message.chat.id, send_message, disable_web_page_preview=True)
     else:
         bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
