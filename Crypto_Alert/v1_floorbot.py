@@ -39,16 +39,16 @@ def is_number_tryexcept(s):
 
 
 def get_update_message():
-    send_message  = f"Update: *Bot fixed*!\n" \
+    send_message  = f"Update: *Bot Fix 1.0*!\n" \
                     f"- Automatic alerts should work now\n" \
-                    f"- Floor Price Threshold can be set\n" \
+                    f"- New Function: Get alerted only if floor falls below predefined threshold\n" \
                     f"- For each collection an alert bot can be configured:\n" \
                     f"1. Create a group\n" \
                     f"2. Find 'v1 Floor Bot' and add it to the group\n" \
-                    f"3. Enjoy\n" \
+                    f"3. Enjoy\n\n" \
                     f"Please restart by sending /start"
     send_message += f"\n\n-----\n" \
-                    f"If you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)\n" \
+                    f"If you still face any issues please [contact me](tg://user?id=383615621) :)\n" \
                     f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
     return send_message
 
