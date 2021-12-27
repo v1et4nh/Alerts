@@ -19,8 +19,8 @@ def main():
         list_time = day.fetchNextSiblings('a')
         len_range = len(list_time) - num_time
         for idx in range(len_range):
-            url = "https://www.docvisit.de/kalender/blankenfeld/list"
-            tmp_url = url.replace('list', list_time[idx].attrs['href'])
+            tmp_url = "https://www.docvisit.de/kalender/blankenfeld/list"
+            tmp_url = tmp_url.replace('list', list_time[idx].attrs['href'])
             title = list_time[idx].attrs['title']
             tmp_time = list_time[idx].text
             time_message = f"[{tmp_time}h]({tmp_url}): {title}"
