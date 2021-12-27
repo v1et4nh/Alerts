@@ -5,7 +5,7 @@ from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, bot_v1_floorbot_token
 
 SLEEP               = 30
-PICKLE_FILE_PROJECT = '../Data/v1_floorbot_ids_project.pickle'
+PICKLE_FILE_PROJECT = '../Data/v1_floorbot_ids_collection.pickle'
 PICKLE_FILE_FLOOR   = '../Data/v1_floorbot_ids_last_floor.pickle'
 
 
@@ -79,26 +79,51 @@ def get_current_floor_price(collection):
 
 
 def run_os_stats():
-    dict_user_project = load_pickle(PICKLE_FILE_PROJECT)
-    for chat_id in dict_user_project:
-        collection  = dict_user_project[chat_id]
-        stats       = getOSstats(collection)
-        last_floor  = get_last_floor(chat_id)
-        floor_price = float(stats['floor_price'])
-        if abs(floor_price - last_floor) > 0:
-            eur, usd, = getETHprice()
-            eur_price = int(eur * floor_price)
-            usd_price = int(usd * floor_price)
-            url       = 'https://opensea.io/collection/' + collection
-            message   = f"*{collection}*\nFloor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)"
-            message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
-            message  += '\nHolders: *' + str(stats['num_owners']) + '*'
-            message  += '\n\nView in [Opensea](' + url + ')'
-            message  += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
-            message  += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
-            telegram_bot_sendtext(message, bot_chatID=chat_id, bot_token=bot_v1_floorbot_token, disable_web_page_preview=True)
-            dict_floor = {chat_id: floor_price}
-            save_pickle(dict_floor, PICKLE_FILE_FLOOR)
+    dict_user          = load_pickle(PICKLE_FILE_PROJECT)
+    dict_floor         = {}
+    dict_current_floor = {}
+    error_counter      = 0
+    for chat_id in dict_user:
+        try:
+            collection      = dict_user[chat_id]['collection']
+            floor_threshold = dict_user[chat_id]['threshold']
+            if collection not in dict_current_floor:
+                stats = getOSstats(collection)
+                dict_current_floor[collection] = stats
+            stats = dict_current_floor[collection]
+            last_floor  = get_last_floor(chat_id)
+            try:
+                floor_price = float(stats['floor_price'])
+            except:
+                floor_price = 0
+            dict_floor[chat_id] = floor_price
+            if abs(floor_price - last_floor) > 0:
+                if floor_threshold == 0 or floor_price <= floor_threshold:
+                    eur, usd, = getETHprice()
+                    eur_price = int(eur * floor_price)
+                    usd_price = int(usd * floor_price)
+                    try:
+                        ratio = round(stats['count']/stats['num_owners'], 2)
+                    except:
+                        ratio = 0
+                    url       = 'https://opensea.io/collection/' + collection
+                    message   = f"*{get_name(collection)}*\n" \
+                                f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
+                                f"NFTs: *{int(stats['count'])}*\n" \
+                                f"Holders: *{stats['num_owners']}*\n" \
+                                f"NFT-to-Holders-Ratio: *{ratio}*\n" \
+                                f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
+                                f"\nView on [Opensea]({url})"
+                    message  += f"\n\n-----\n" \
+                                f"If you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)\n" \
+                                f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
+                    telegram_bot_sendtext(message, bot_chatID=chat_id, bot_token=bot_v1_floorbot_token, disable_web_page_preview=True)
+        except:
+            error_counter += 1
+            send_message = f"*Floor Bot - Error*\n" \
+                           f"{error_counter}) {chat_id} failed"
+            telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
+    save_pickle(dict_floor, PICKLE_FILE_FLOOR)
 
 
 def main(time_intervall=SLEEP):
