@@ -4,7 +4,7 @@ from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, bot_v1_floorbot_token
 
-SLEEP               = 30
+SLEEP               = 45
 PICKLE_FILE_PROJECT = '../Data/v1_floorbot_ids_collection.pickle'
 PICKLE_FILE_FLOOR   = '../Data/v1_floorbot_ids_last_floor.pickle'
 
@@ -96,6 +96,7 @@ def run_os_stats():
             collection      = dict_user[chat_id]['collection']
             floor_threshold = dict_user[chat_id]['threshold']
             if collection not in dict_current_floor:
+                sleep(5)
                 stats = getOSstats(collection)
                 dict_current_floor[collection] = stats
             stats = dict_current_floor[collection]
