@@ -50,7 +50,7 @@ def get_last_sale():
         if len(last_messages) > check_num + 5:
             last_messages.pop(0)
         if message not in last_messages:
-            telegram_bot_sendtext(message, bot_chatID='-1001543970377')
+            telegram_bot_sendtext(message, bot_chatID='-1001543970377', disable_web_page_preview=True)
             last_messages.append(message)
             save_pickle(last_messages, PICKLE_FILE)
 
