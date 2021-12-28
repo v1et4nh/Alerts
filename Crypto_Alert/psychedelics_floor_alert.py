@@ -6,7 +6,7 @@ from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
 
 NAME        = 'Psychedelics Anonymous Genesis'
 OPENSEA     = 'psychedelics-anonymous-genesis'
-SLEEP       = 30
+SLEEP       = 60
 PRICE_ALARM = 99999  # ETH
 PICKLE_FILE = '../Data/psychedelics_last_floor.pickle'
 

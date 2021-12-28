@@ -8,7 +8,7 @@ NAME        = 'Sand Vegas Casino Club'
 PICKLE_FILE = '../Data/sandvegas_last_counter.pickle'
 ADDRESS     = '0x71d106ba5283260467a3caff59de9e5bceb9f444'
 OPENSEA     = 'sandvegascasinoclub-official'
-SLEEP       = 1
+SLEEP       = 60
 
 
 def get_last_message():
