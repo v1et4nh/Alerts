@@ -39,11 +39,9 @@ def is_number_tryexcept(s):
 
 
 def get_update_message():
-    send_message  = f"Note: *Invalid Input Error*!\n" \
-                    f"If you get an invalid input error although your opensea-url should be valid,\n" \
-                    f"that is because the Opensea API is currently not working.\n" \
-                    f"I will try to fix it asap!\n" \
-                    f"Thanks for your patience!"
+    send_message  = f"Update: *Bot Fix 0.2*!\n" \
+                    f"ENG: Should be working now! :) Please restart by sending /start\n\n" \
+                    f"GER: Sollte nun wieder funktionieren! :) Bitte neustarten mit /start\n\n"
     send_message += f"\n\n-----\n" \
                     f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
                     f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
