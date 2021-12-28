@@ -40,8 +40,8 @@ def is_number_tryexcept(s):
 
 def get_update_message():
     send_message  = f"Update: *Bot Fix 0.2*!\n" \
-                    f"ENG: Should be working now! :) Please restart by sending /start\n\n" \
-                    f"GER: Sollte nun wieder funktionieren! :) Bitte neustarten mit /start\n\n"
+                    f"ENG: Should be working now! :) Please restart by sending /start\n" \
+                    f"GER: Sollte nun wieder funktionieren! :) Bitte neustarten mit /start"
     send_message += f"\n\n-----\n" \
                     f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
                     f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
