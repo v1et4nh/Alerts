@@ -39,16 +39,13 @@ def is_number_tryexcept(s):
 
 
 def get_update_message():
-    send_message  = f"Update: *Bot Fix 0.1*!\n" \
-                    f"- Automatic alerts should work now\n" \
-                    f"- New Function: Get alerted only if floor falls below a threshold\n" \
-                    f"- For each collection an alert bot can be configured:\n" \
-                    f"     1. Create a group\n" \
-                    f"     2. Find 'v1 Floor Bot' and add it to the group\n" \
-                    f"     3. Enjoy\n\n" \
-                    f"Please restart by sending /start"
+    send_message  = f"Note: *Invalid Input Error*!\n" \
+                    f"If you get an invalid input error although your opensea-url should be valid,\n" \
+                    f"that is because the Opensea API is currently not working.\n" \
+                    f"I will try to fix it asap!\n" \
+                    f"Thanks for your patience!"
     send_message += f"\n\n-----\n" \
-                    f"If you still face any issues please [contact me](tg://user?id=383615621) :)\n" \
+                    f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
                     f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
                     f"Love the bot? -> /donate <3"
     return send_message
