@@ -47,7 +47,7 @@ def getETHprice():
     market = round(data["ethereum"]["usd_market_cap"])
     market = format(market, ",")
 
-    priceinfo = f"""<b><ins><a href='https://coingecko.com/en/coins/ethereum/'>Ethereum | $ETH</a> Price:</ins></b>
+    priceinfo = f"""<b><ins><a href='https://coingecko.com/en/coins/ethereum/'>Ethereum</a></ins></b>
 <b>💰 EUR:</b> €{peur}
 <b>💰 USD:</b> ${pusd}
 <b>🗿 BTC:</b> ฿{pbtc}
@@ -62,11 +62,12 @@ def run():
     last_eur = get_last_message()
     eur, usd, priceinfo = getETHprice()
     print(priceinfo)
-    if abs(last_eur - eur) > 0:
-        message = f"Ethereum: *{eur}* EUR"
+    if abs(last_eur - eur) >= 50:
+        message = f"Ethereum: <b>{eur}</b>€\n\n"
+        message += priceinfo
         message += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
         message += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
-        telegram_bot_sendtext(priceinfo, bot_chatID='-1001597747951', disable_web_page_preview=True, parse_mode='HTML')
+        telegram_bot_sendtext(message, bot_chatID='-1001597747951', disable_web_page_preview=True, parse_mode='HTML')
         save_pickle(eur, PICKLE_FILE)
 
 
