@@ -116,7 +116,7 @@ def run_os_stats():
                     except:
                         ratio = 0
                     url       = 'https://opensea.io/collection/' + collection
-                    message   = f"*{get_name(collection)}*\n" \
+                    message   = f"*{stats['floor_price']} ETH* - *{get_name(collection)}*\n" \
                                 f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
                                 f"NFTs: *{int(stats['count'])}*\n" \
                                 f"Holders: *{stats['num_owners']}*\n" \
