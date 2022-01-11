@@ -23,3 +23,13 @@ def get_eth_price():
     pusd_val = float(pusd.replace(',', ''))
 
     return peur_val, pusd_val
+
+
+def is_number_tryexcept(s):
+    """ Returns True is string is a number. """
+    try:
+        s = s.replace(',', '.')
+        float(s)
+        return True
+    except ValueError:
+        return False

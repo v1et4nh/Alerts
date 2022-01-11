@@ -31,3 +31,6 @@ floorbot_help_message = """
 /help - Show the command list of this bot
 """
 
+end_message = f"-----\n" \
+              f"If you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)\n" \
+              f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
