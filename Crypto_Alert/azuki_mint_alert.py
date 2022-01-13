@@ -12,7 +12,7 @@ PICKLE_FILE = '../Data/azuki_last_counter.pickle'
 ADDRESS     = '0xed5af388653567af2f388e6224dc7c4b3241c544'
 OPENSEA     = 'azuki'
 TOTALSUPPLY = 'totalSupply'
-MAXSUPPLY   = 'amountForAuctionAndDev'
+MAXSUPPLY   = 10000
 BOT_CHATID  = '-1001754205908'
 SLEEP       = 1
 
