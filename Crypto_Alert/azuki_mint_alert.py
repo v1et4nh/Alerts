@@ -80,23 +80,24 @@ def getMaxSupply(dict_data):
 
 
 def getCurrentMintPrice():
-    AUCTION_START_PRICE = 1
-    AUCTION_END_PRICE = 0.15
-    AUCTION_DROP_INTERVAL = 20 * 60
-    AUCTION_PRICE_CURVE_LENGTH = 340 * 60
-    AUCTION_DROP_PER_STEP = (AUCTION_START_PRICE - AUCTION_END_PRICE) / \
-                            (AUCTION_PRICE_CURVE_LENGTH / AUCTION_DROP_INTERVAL)
-    salesStartTime = 1642010400
-
-    currentTime = time.time()
-
-    if currentTime < salesStartTime:
-        return AUCTION_START_PRICE
-    elif currentTime - salesStartTime >= AUCTION_PRICE_CURVE_LENGTH:
-        return AUCTION_END_PRICE
-    else:
-        steps = int((currentTime - salesStartTime) / AUCTION_DROP_INTERVAL)
-        return AUCTION_START_PRICE - (steps * AUCTION_DROP_PER_STEP)
+    return 0.5
+    # AUCTION_START_PRICE = 1
+    # AUCTION_END_PRICE = 0.15
+    # AUCTION_DROP_INTERVAL = 20 * 60
+    # AUCTION_PRICE_CURVE_LENGTH = 340 * 60
+    # AUCTION_DROP_PER_STEP = (AUCTION_START_PRICE - AUCTION_END_PRICE) / \
+    #                         (AUCTION_PRICE_CURVE_LENGTH / AUCTION_DROP_INTERVAL)
+    # salesStartTime = 1642010400
+    #
+    # currentTime = time.time()
+    #
+    # if currentTime < salesStartTime:
+    #     return AUCTION_START_PRICE
+    # elif currentTime - salesStartTime >= AUCTION_PRICE_CURVE_LENGTH:
+    #     return AUCTION_END_PRICE
+    # else:
+    #     steps = int((currentTime - salesStartTime) / AUCTION_DROP_INTERVAL)
+    #     return AUCTION_START_PRICE - (steps * AUCTION_DROP_PER_STEP)
 
 
 def getOSstats(collection=OPENSEA):
