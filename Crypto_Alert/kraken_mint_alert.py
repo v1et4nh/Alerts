@@ -113,7 +113,11 @@ def run_mint_counter():
         amount_left = maxSupply - mint_counter
         left_perc = round(float(amount_left / maxSupply) * 100, 2)
         stats       = getOSstats()
-        owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
+
+        try:
+            owner_mint_ratio = round(float(mint_counter/stats['num_owners']), 2)
+        except:
+            owner_mint_ratio = 0
 
         eur, usd = get_eth_price()
         try:
