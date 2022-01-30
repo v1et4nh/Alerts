@@ -10,7 +10,7 @@ from bot_messages import end_message
 NAME        = 'Kraken'
 PICKLE_FILE = '../Data/kraken_last_counter.pickle'
 ADDRESS     = '0xe585be75799307ea90aba9299d10fb98bdd33e33'
-OPENSEA     = 'cryptokrakens-club-8'
+OPENSEA     = 'cryptokrakens-club-v2'
 TOTALSUPPLY = 'totalSupply'
 MAXSUPPLY   = 'maxSupply'
 MINTPRICE   = 'cost'
