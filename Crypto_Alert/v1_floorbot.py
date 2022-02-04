@@ -8,14 +8,16 @@ from telebot.types import InlineKeyboardMarkup as ikm
 from telebot.types import InlineKeyboardButton as ikb
 from floor_alert import get_current_floor_price, get_name
 from Functions.file_handler import save_pickle, load_pickle
+from Functions.telegrambot import bot_v1_testbot_token, bot_v1_floorbot_token
 
 
 PICKLE_FILE = '../Data/v1_floorbot_ids_collection.pickle'
+# PICKLE_FILE = '../Data/v1_testbot_ids_project.pickle'
 
 # Load environment variables
 load_dotenv()
-bot_token       = str(os.getenv('TELEGRAM_V1_FLOORBOT_TOKEN'))        # Replace with your own bot_token
-private_chat_id = str(os.getenv('TELEGRAM_V1ET4NH_CHATID'))     # Replace with your own chat_id
+bot_token       = bot_v1_floorbot_token
+private_chat_id = str(os.getenv('TELEGRAM_V1ET4NH_CHATID'))
 
 # Start Bot
 bot = telebot.TeleBot(bot_token, parse_mode='Markdown')
@@ -29,9 +31,9 @@ def load_dict_user():
 
 
 def is_number_tryexcept(s):
-    """ Returns True is string is a number. """
+    """ Returns True if string is a number. """
     try:
-        s = s.replace(',', '.')
+        s = s.replace(',', '.').replace('>', '').replace('<', '').strip()
         float(s)
         return True
     except ValueError:
@@ -39,9 +41,15 @@ def is_number_tryexcept(s):
 
 
 def get_update_message():
-    send_message  = f"Update: *Bot Fix 0.2*!\n" \
-                    f"ENG: Should be working now! :) Please restart by sending /start\n" \
-                    f"GER: Sollte nun wieder funktionieren! :) Bitte neustarten mit /start"
+    send_message  = f">>> Update: *New Feature: Alert-Type*! <<<\n\n" \
+                    f"*ENG*: Now you can define three types of alerts. Examples:\n" \
+                    f"'<0.5': get alerted if floor *falls below* threshold (here: 0.5)\n" \
+                    f"'>0.5': get alerted if floor *exceeds* threshold\n" \
+                    f"'0':      get alerted for *any* price change\n---\n" \
+                    f"*GER*: Man kann jetzt den Alarm-Typ einstellen. Beispiele:\n" \
+                    f"'<0.5': Alarm, wenn Floor unter Grenzwert fällt (hier: 0.5)\n" \
+                    f"'>0.5': Alarm, wenn Floor Grenzwert überschreitet\n" \
+                    f"'0':      Alarm bei jeglicher Preis-Änderung"
     send_message += f"\n\n-----\n" \
                     f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
                     f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
@@ -57,7 +65,7 @@ def send_welcome(message):
     print(time.strftime('%X %x %Z'))
     print(f"{user}: {message.text}")
     if chat_id not in dict_user:
-        dict_user[chat_id] = {'username': user, 'collection': '', 'threshold': 0}
+        dict_user[chat_id] = {'username': user, 'collection': '', 'threshold': 0, 'alert_type': '<'}
         send_message = f"{user} joined your Floor Bot"
         bot.send_message(-680483002, send_message)
         save_pickle(dict_user, PICKLE_FILE)
@@ -182,14 +190,20 @@ def set_url(message):
                                f"Floor price of the collection\n" \
                                f">>>>> *{name}* <<<<<\n" \
                                f"will be tracked!\n\n" \
-                               f"Please set your floor price threshold\n" \
-                               f"(for any price change set it to 0): "
+                               f"Please set your floor price threshold and alert type\n" \
+                               f"E.g. '<0.5' or '>0.5' (for any price change set it to 0): "
             bot.send_message(message.chat.id, message_to_send)
         elif is_number_tryexcept(tmp_text):
             tmp_text = tmp_text.replace(',', '.')
+            alert_type = '<'
+            if tmp_text[0] == '>' or tmp_text[0] == '<':
+                alert_type = tmp_text[0]
+                tmp_text = tmp_text.replace('>', '').replace('<', '')
+                tmp_text = tmp_text.strip()
             floor_threshold = float(tmp_text)
             if dict_user[chat_id]['collection']:
                 dict_user[chat_id]['threshold'] = floor_threshold
+                dict_user[chat_id]['alert_type'] = alert_type
                 save_pickle(dict_user, PICKLE_FILE)
                 collection = dict_user[chat_id]['collection']
                 name = get_name(collection)
@@ -200,7 +214,7 @@ def set_url(message):
                 else:
                     message_to_send = f"Success!\n" \
                                       f"Collection: *{name}*\n" \
-                                      f"Alert-Method: <*{floor_threshold} ETH*"
+                                      f"Alert-Method: *{alert_type}{floor_threshold} ETH*"
                 bot.send_message(message.chat.id, message_to_send)
             else:
                 message_to_send = f"Please define a collection first by sending me the opensea-url."

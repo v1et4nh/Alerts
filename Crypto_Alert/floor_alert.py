@@ -2,10 +2,12 @@ import requests
 import time
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
-from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, bot_v1_floorbot_token
+from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, bot_v1_floorbot_token, bot_v1_testbot_token
 
 SLEEP               = 45
+# PICKLE_FILE_PROJECT = '../Data/v1_testbot_ids_project.pickle'
 PICKLE_FILE_PROJECT = '../Data/v1_floorbot_ids_collection.pickle'
+# PICKLE_FILE_FLOOR   = '../Data/v1_testbot_ids_last_floor.pickle'
 PICKLE_FILE_FLOOR   = '../Data/v1_floorbot_ids_last_floor.pickle'
 
 
@@ -95,6 +97,11 @@ def run_os_stats():
         try:
             collection      = dict_user[chat_id]['collection']
             floor_threshold = dict_user[chat_id]['threshold']
+            try:
+                alert_type  = dict_user[chat_id]['alert_type']
+            except:
+                dict_user[chat_id]['alert_type'] = '<'
+                alert_type = dict_user[chat_id]['alert_type']
             if collection not in dict_current_floor:
                 sleep(5)
                 stats = getOSstats(collection)
@@ -106,8 +113,15 @@ def run_os_stats():
             except:
                 floor_price = 0
             dict_floor[chat_id] = floor_price
+            trigger_bool = False
             if abs(floor_price - last_floor) > 0:
-                if floor_threshold == 0 or floor_price <= floor_threshold:
+                if alert_type == '>':
+                    if floor_price >= floor_threshold:
+                        trigger_bool = True
+                else:
+                    if floor_price <= floor_threshold:
+                        trigger_bool = True
+                if floor_threshold == 0 or trigger_bool:
                     eur, usd, = getETHprice()
                     eur_price = int(eur * floor_price)
                     usd_price = int(usd * floor_price)
