@@ -159,14 +159,20 @@ def update(message):
 def update_all(message):
     if message.chat.id == int(private_chat_id):
         dict_user = load_pickle(PICKLE_FILE)
+        list_user_sent = []
         for chat_id in dict_user:
-            bot.send_message(chat_id, get_update_message(), disable_web_page_preview=True)
+            try:
+                bot.send_message(chat_id, get_update_message(), disable_web_page_preview=True)
+                list_user_sent.append(chat_id)
+            except:
+                pass
         send_message = f"\n\nUpdates sent to:"
-        for chat_id in dict_user:
+        for chat_id in list_user_sent:
             try:
                 send_message += f"\n{dict_user[chat_id]['username']}"
             except:
                 send_message += f"\n{chat_id}"
+        send_message += f"\nCount: {len(list_user_sent)}/{len(dict_user)}"
         bot.send_message(private_chat_id, send_message, disable_web_page_preview=True)
     else:
         bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
