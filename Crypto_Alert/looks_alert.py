@@ -47,7 +47,7 @@ def getETHprice():
     market = round(data["looksrare"]["usd_market_cap"])
     market = format(market, ",")
 
-    priceinfo = f"""<b><ins><a href='https://coingecko.com/en/coins/ethereum/'>LooksRare</a></ins></b>
+    priceinfo = f"""<b><ins><a href='https://coingecko.com/en/coins/looksrare/'>LooksRare</a></ins></b>
 <b>💰 EUR:</b> €{peur}
 <b>💰 USD:</b> ${pusd}
 <b>🗿 BTC:</b> ฿{pbtc}
