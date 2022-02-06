@@ -14,7 +14,7 @@ OPENSEA     = 'themetaskulls'
 TOTALSUPPLY = 'totalSupply'
 MAXSUPPLY   = 'collectionSize'
 MINTPRICE   = 'price'
-PRICEFACTOR = 10
+PRICEFACTOR = 100
 BOT_CHATID  = '-1001706813273'
 SLEEP       = 1
 
