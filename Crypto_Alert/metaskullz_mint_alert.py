@@ -7,16 +7,16 @@ from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_
 from Functions.scraping_tools import is_number_tryexcept, get_eth_price
 from bot_messages import end_message
 
-NAME        = 'PxQuest'
-PICKLE_FILE = '../Data/pxquest_last_counter.pickle'
-ADDRESS     = '0x17ed38f5f519c6ed563be6486e629041bed3dfbc'
-OPENSEA     = 'pxquest'
+NAME        = 'MetaSkullz'
+PICKLE_FILE = '../Data/metaskullz_last_counter.pickle'
+ADDRESS     = '0x9D99D28Eb9dcB7b8bA2E33a11270dC5Fe1d283dD'
+OPENSEA     = 'themetaskulls'
 TOTALSUPPLY = 'totalSupply'
-MAXSUPPLY   = 'maxSupply'
+MAXSUPPLY   = 'collectionSize'
 MINTPRICE   = 'price'
-PRICEFACTOR = 1000
-BOT_CHATID  = bot_chatID_private
-SLEEP       = 5
+PRICEFACTOR = 10
+BOT_CHATID  = '-1001706813273'
+SLEEP       = 1
 
 
 def get_hash(variable):
