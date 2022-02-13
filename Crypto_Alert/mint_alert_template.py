@@ -7,16 +7,15 @@ from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_
 from Functions.scraping_tools import is_number_tryexcept, get_eth_price
 from bot_messages import end_message
 
-NAME        = 'PxQuest'
-PICKLE_FILE = '../Data/pxquest_last_counter.pickle'
-ADDRESS     = '0x17ed38f5f519c6ed563be6486e629041bed3dfbc'
-OPENSEA     = 'pxquest'
+NAME        = ''
+PICKLE_FILE = '../Data/_last_counter.pickle'
+ADDRESS     = ''
+OPENSEA     = ''
 TOTALSUPPLY = 'totalSupply'
 MAXSUPPLY   = 'maxSupply'
 MINTPRICE   = 'price'
-PRICEFACTOR = 1000
 BOT_CHATID  = bot_chatID_private
-SLEEP       = 5
+SLEEP       = 1
 
 
 def get_hash(variable):
@@ -87,7 +86,9 @@ def getCurrentMintPrice(dict_data):
               f"&data=0x{get_hash(MINTPRICE)}" \
               f"&apikey={dict_data['key']}"
         data = getData(url)
-        currentPrice = float(str(int(data['result'], 16)).replace('0', ''))/PRICEFACTOR
+        currentPrice = float(str(int(data['result'], 16)).replace('0', ''))
+        price_factor = int('1' + '0'*len(str(currentPrice).replace('.', '').replace('0', '')))
+        currentPrice = currentPrice/price_factor
     else:
         currentPrice = float(MINTPRICE)
 
