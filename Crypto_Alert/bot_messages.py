@@ -33,4 +33,4 @@ floorbot_help_message = """
 
 end_message = f"-----\n" \
               f"If you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)\n" \
-              f"Check out my other [Telegram-Bots](https://linktr.ee/v1et4nh)"
+              f"Check out more [Telegram-Bots](https://linktr.ee/v1et4nh)"

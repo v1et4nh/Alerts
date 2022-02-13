@@ -16,7 +16,7 @@ MAXSUPPLY   = 'MAX_MINT'
 MINTPRICE   = 'PRICE'
 PRICEFACTOR = 10
 BOT_CHATID  = '-1001625934836'
-SLEEP       = 1
+SLEEP       = 60
 
 
 def get_hash(variable):
