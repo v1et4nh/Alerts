@@ -46,6 +46,7 @@ def getSniperStats(limit=7):
             name = 'Issue 1'
         else:
             name = 'Issue 2'
+            continue
         date  = date.text_content()
         url = url.getchildren()[0].attrib['href']
 
