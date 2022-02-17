@@ -67,7 +67,7 @@ def send_welcome(message):
     if chat_id not in dict_user:
         dict_user[chat_id] = {'username': user, 'collection': '', 'threshold': 0, 'alert_type': '<'}
         send_message = f"{user} joined your Floor Bot"
-        bot.send_message(-680483002, send_message)
+        bot.send_message('-680483002', send_message)
         save_pickle(dict_user, PICKLE_FILE)
     bot.send_message(message.chat.id, floorbot_welcome_message, disable_web_page_preview=True)
 
