@@ -47,6 +47,8 @@ def getSniperStats(limit=7):
         else:
             name = 'Issue 2'
             continue
+        if price > 1:
+            continue
         date  = date.text_content()
         url = url.getchildren()[0].attrib['href']
 
