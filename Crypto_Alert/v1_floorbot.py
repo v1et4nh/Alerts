@@ -65,7 +65,7 @@ def send_welcome(message):
     print(time.strftime('%X %x %Z'))
     print(f"{user}: {message.text}")
     if chat_id not in dict_user:
-        user = user.replace('_', '')
+        user = user.replace('_', '').replace('-', '')
         dict_user[chat_id] = {'username': user, 'collection': '', 'threshold': 0, 'alert_type': '<'}
         send_message = f"{user} joined your Floor Bot"
         bot.send_message('-680483002', send_message)
