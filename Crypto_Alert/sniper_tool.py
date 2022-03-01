@@ -1,5 +1,6 @@
 import os
 import time
+import datetime
 import requests
 import pandas as pd
 from dotenv import load_dotenv
@@ -48,9 +49,10 @@ def get_table(contract=''):
             dict_listing[str(idx).rjust(2, '0')]['img'] =  entry['asset']['image_url']
             dict_listing[str(idx).rjust(2, '0')]['name'] = entry['asset']['name']
         else:
-            dict_listing[str(idx).rjust(2, '0')]['url'] =  entry['asset_bundle']['permalink']
-            dict_listing[str(idx).rjust(2, '0')]['img'] =  entry['asset_bundle']['assets'][0]['image_url']
-            dict_listing[str(idx).rjust(2, '0')]['name'] = entry['asset_bundle']['name']
+            dict_listing[str(idx).rjust(2, '0')]['url'] =    entry['asset_bundle']['permalink']
+            dict_listing[str(idx).rjust(2, '0')]['img'] =    entry['asset_bundle']['assets'][0]['image_url']
+            dict_listing[str(idx).rjust(2, '0')]['name'] =   entry['asset_bundle']['name']
+            dict_listing[str(idx).rjust(2, '0')]['bundle'] = len(entry['asset_bundle']['assets'])
 
     return dict_listing
 
@@ -79,9 +81,16 @@ def huxley(contract=CONTRACT, price=100):
             if price > 0.25:
                 continue
         else:
-            name = 'Bundle'
+            set = entry['bundle']
+            name = f'{set}x Bundle'
 
         date = entry['listing_time']
+        # Origin is UTC -> Convert to Europe/Berlin Timezone
+        date = date.replace('T', ' ')
+        date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        date = date + datetime.timedelta(hours=1)
+        date = date.strftime('%Y-%m-%d %H:%M:%S')
+
         url  = entry['url']
 
         col[0][1].append(price)
