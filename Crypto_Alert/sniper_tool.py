@@ -83,6 +83,9 @@ def huxley(contract=CONTRACT, price=100):
         else:
             set = entry['bundle']
             name = f'{set}x Bundle'
+            price = price / set
+            if price > 0.25:
+                continue
 
         date = entry['listing_time']
         # Origin is UTC -> Convert to Europe/Berlin Timezone
