@@ -13,7 +13,7 @@ ADDRESS     = '0x7e3Ef31186D1BEc0D3f35aD701D065743B84C790'
 OPENSEA     = 'antonymgenesis'
 TOTALSUPPLY = 'totalSupply'
 MAXSUPPLY   = 'TOTAL_MAX'
-MINTPRICE   = 'whitelistPrice'
+MINTPRICE   = 'getCurrentPrice'
 BOT_CHATID  = '-1001663066912'
 SLEEP       = 1
 
