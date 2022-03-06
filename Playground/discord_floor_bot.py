@@ -90,7 +90,7 @@ async def test():
             if abs(floor_price-last_floor) > 0:
                 icon = ''
                 if last_floor != 0:
-                    change_ratio = (round(float(floor_price / last_floor), 2) - 1) * 100
+                    change_ratio = round((float(floor_price / last_floor) - 1) * 100, 2)
                 else:
                     change_ratio = 0
                 change_ratio = str(change_ratio) + '%'
