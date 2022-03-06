@@ -33,3 +33,29 @@ def is_number_tryexcept(s):
         return True
     except ValueError:
         return False
+
+
+def getData(url):
+    res = requests.get(url)
+    if res.status_code != 200:
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        if res.status_code != 200:
+            return 'RequestsError'
+    data = res.json()
+    return data
+
+
+def getOSstats(collection):
+    url   = "https://api.opensea.io/api/v1/collection/" + collection
+    data  = getData(url)
+    stats = data['collection']['stats']
+
+    return stats
+
+
+def get_name(collection):
+    url   = "https://api.opensea.io/api/v1/collection/" + collection
+    data  = getData(url)
+    name  = data['collection']['name']
+
+    return name

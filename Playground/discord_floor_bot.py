@@ -7,26 +7,33 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
 from Functions.telegrambot import etherscan_api_key
-from Crypto_Alert.Archive.mint_alert import getETHprice, getEtherScanData, getMintedAmount, getCurrentMintPrice
+from Functions.scraping_tools import getOSstats
 
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')
 GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
-CHANNEL = os.getenv('DISCORD_CHANNEL')
-PICKLE_FILE = '../Data/rebelz_discord_last_counter.pickle'
-
+PICKLE_FILE_FLOOR = '../Data/discord_last_floor.pickle'
 client = discord.Client()
 
 
-dict_collection = {'Flooz': 948283638385102899}
+dict_collection = {
+    'Flooz': {
+        'name':       'Flooz',
+        'channel_id': 948283638385102899,
+        'slug':       'gen-f',
+        'last_floor': 0
+    }
+}
 
 
-def get_last_message():
-    dict_last_messages = load_pickle(PICKLE_FILE)
+def get_last_floor(collection):
+    last_floor = load_pickle(PICKLE_FILE_FLOOR)
     try:
-        return dict_last_messages['counter']
+        if 'Error' in last_floor:
+            return 0
+        return last_floor[collection]
     except:
-        return 10000
+        return 0
 
 
 def get_gasfee():
@@ -45,37 +52,80 @@ def get_gasfee():
     return gasinfo
 
 
+def getETHprice():
+    url_eur = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=eur%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    url_usd = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    data_eur = requests.get(url_eur).json()
+    peur = round(data_eur["ethereum"]["eur"], 2)
+    peur = format(peur, ",")
+    peur_val = float(peur.replace(',', ''))
+    data = requests.get(url_usd).json()
+    pusd = round(data["ethereum"]["usd"], 2)
+    pusd = format(pusd, ",")
+    pusd_val = float(pusd.replace(',', ''))
+
+    return peur_val, pusd_val
+
+
 @tasks.loop(seconds=60)
 async def test():
-    dict_data    = getEtherScanData()
-    last_counter = get_last_message()
-    mint_counter = getMintedAmount(dict_data)
-    print(time.strftime('%X %x %Z'))
-    print(last_counter, mint_counter)
-    if mint_counter - last_counter > 0:
-        amount_left = 10000 - mint_counter
-        price = getCurrentMintPrice(dict_data)
-        eur, usd, _ = getETHprice()
-        eur_price = int(eur * price)
-        usd_price = int(usd * price)
-        gasinfo = get_gasfee()
-        channel = client.get_channel(int(CHANNEL))
-        embed = discord.Embed(
-            title="Rebelz Mint ALERT",
-            url="https://realdrewdata.medium.com/",
-            description="New rebel just minted",
-            color=discord.Color.blue())
-        embed.set_author(name="v1et4nh", url="https://twitter.com/v1et_le",
-                         icon_url="https://pbs.twimg.com/profile_images/1462827760175529991/Uy0ScCuC_400x400.jpg")
-        embed.set_thumbnail(url="https://pbs.twimg.com/profile_images/1449467742961156100/xeYtwpLD_400x400.jpg")
-        embed.add_field(name="**Rebelz amount minted**", value=str(mint_counter), inline=False)
-        embed.add_field(name="**Rebelz left**", value=str(amount_left), inline=False)
-        embed.add_field(name="**Current Mint Price**",
-                        value=str(price) + ' ETH (' + str(eur_price) + ' € | ' + str(usd_price) + ' US$)', inline=False)
-        embed.add_field(name="**Current Gas Fee**", value=gasinfo, inline=False)
-        await channel.send(embed=embed)
-        dict_counter = {'counter': mint_counter}
-        save_pickle(dict_counter, PICKLE_FILE)
+    dict_floor = {}
+
+    for collection in dict_collection:
+        try:
+            collection = dict_collection[collection]
+            channel_id = collection['channel_id']
+            slug       = collection['slug']
+            stats      = getOSstats(slug)
+            last_floor = get_last_floor(collection['name'])
+
+            # Get floor price
+            try:
+                floor_price = float(stats['floor_price'])
+            except:
+                floor_price = 0
+            dict_floor[collection['name']] = floor_price
+
+            # Trigger
+            if abs(floor_price-last_floor) > 0:
+                icon = ''
+                change_ratio = (round(float(floor_price / last_floor), 2) - 1) * 100
+                change_ratio = str(change_ratio) + '%'
+                if floor_price > last_floor:
+                    icon = ':rocket:'
+                    change_ratio = '+' + str(change_ratio)
+                elif floor_price < last_floor:
+                    icon = ':small_red_triangle_down:'
+
+                # Get channel
+                channel = client.get_channel(int(channel_id))
+
+                # Get FIAT price
+                eur, usd, = getETHprice()
+                eur_price = int(eur * floor_price)
+                usd_price = int(usd * floor_price)
+
+                try:
+                    ratio = round(stats['count'] / stats['num_owners'], 2)
+                except:
+                    ratio = 0
+
+                url = 'https://opensea.io/collection/' + slug
+
+                embed = discord.Embed(
+                    title=f"{icon} Ξ{floor_price} ({change_ratio}) - {collection['name']} Floor",
+                    url=url,
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name=f"**{collection['name']} Floor**", value=f"Ξ{floor_price} ({eur_price}€ | {usd_price}$)", inline=False)
+                embed.add_field(name="NFTs", value=str(int(stats['count'])), inline=True)
+                embed.add_field(name="Holders", value=str(stats['num_owners']), inline=True)
+                embed.add_field(name="NFT-to-Holders-Ratio", value=str(ratio), inline=False)
+                embed.add_field(name="Volume traded", value=str(round(stats['total_volume'], 2)), inline=False)
+                await channel.send(embed=embed)
+                save_pickle(dict_floor, PICKLE_FILE_FLOOR)
+        except:
+            pass
 
 
 @client.event
