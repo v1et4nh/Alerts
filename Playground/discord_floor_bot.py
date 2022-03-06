@@ -89,7 +89,10 @@ async def test():
             # Trigger
             if abs(floor_price-last_floor) > 0:
                 icon = ''
-                change_ratio = (round(float(floor_price / last_floor), 2) - 1) * 100
+                if last_floor != 0:
+                    change_ratio = (round(float(floor_price / last_floor), 2) - 1) * 100
+                else:
+                    change_ratio = 0
                 change_ratio = str(change_ratio) + '%'
                 if floor_price > last_floor:
                     icon = ':rocket:'
