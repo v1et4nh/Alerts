@@ -7,23 +7,34 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
 from Functions.telegrambot import etherscan_api_key
-from Functions.scraping_tools import getOSstats
+from Functions.scraping_tools import getOSstats, get_name
 
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')
 GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
-PICKLE_FILE_FLOOR = '../Data/discord_last_floor.pickle'
+PICKLE_FILE_FLOOR      = '../Data/discord_last_floor.pickle'
+PICKLE_FILE_COLLECTION = '../Data/discord_collection.pickle'
 client = discord.Client()
+#
+#
+# dict_collection = {
+#     'Flooz': {
+#         'name':       'Flooz',
+#         'channel_id': 948283638385102899,
+#         'slug':       'gen-f',
+#         'last_floor': 0
+#     }
+# }
 
 
-dict_collection = {
-    'Flooz': {
-        'name':       'Flooz',
-        'channel_id': 948283638385102899,
-        'slug':       'gen-f',
-        'last_floor': 0
-    }
-}
+def get_dict_collection():
+    dict_collection = load_pickle(PICKLE_FILE_COLLECTION)
+    try:
+        if 'Error' in dict_collection:
+            return {}
+        return dict_collection
+    except:
+        return {}
 
 
 def get_last_floor(collection):
@@ -70,7 +81,7 @@ def getETHprice():
 @tasks.loop(seconds=60)
 async def test():
     dict_floor = {}
-
+    dict_collection = get_dict_collection()
     for collection in dict_collection:
         try:
             collection = dict_collection[collection]
@@ -140,6 +151,40 @@ async def on_ready():
     print(f'{client.user} has connected to the following guild:')
     print(f'{guild.name}(id: {guild.id})')
     test.start()
+
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    if message.content.startswith("!add"):
+        args = message.content.split(" ")
+        if len(args) == 2:
+            dict_collection = get_dict_collection()
+            user_input = args[1]
+            if "opensea.io" in user_input:
+                slug = user_input[user_input.rfind('/')+1:]
+            else:
+                slug = user_input
+            name = get_name(slug)
+            if name is None:
+                await message.channel.send("Wrong collection slug")
+            else:
+                dict_collection[name] = {
+                    'name': name,
+                    'channel_id': message.channel.id,
+                    'slug': slug,
+                    'last_floor': 0
+                }
+                save_pickle(dict_collection, PICKLE_FILE_COLLECTION)
+                message_to_send = f"Success!\n" \
+                                  f"Floor price of the collection\n" \
+                                  f">>>>> *{name}* <<<<<\n" \
+                                  f"will be tracked!\n\n"
+                await message.channel.send(message_to_send)
+        else:
+            await message.channel.send("I need the slug or the OS-link of the collection")
 
 
 while True:
