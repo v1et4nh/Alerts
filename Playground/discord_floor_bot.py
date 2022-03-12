@@ -38,13 +38,14 @@ def get_dict_collection():
 
 
 def get_last_floor(collection):
-    last_floor = load_pickle(PICKLE_FILE_FLOOR)
+    dict_floor = load_pickle(PICKLE_FILE_FLOOR)
     try:
-        if 'Error' in last_floor:
-            return 0
-        return last_floor[collection]
+        if 'Error' in dict_floor:
+            dict_floor[collection] = 0
+        return dict_floor
     except:
-        return 0
+        dict_floor[collection] = 0
+        return dict_floor
 
 
 def get_gasfee():
@@ -88,7 +89,8 @@ async def test():
             channel_id = collection['channel_id']
             slug       = collection['slug']
             stats      = getOSstats(slug)
-            last_floor = get_last_floor(collection['name'])
+            dict_floor = get_last_floor(collection['name'])
+            last_floor = dict_floor[collection['name']]
 
             # Get floor price
             try:
