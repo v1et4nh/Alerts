@@ -1,7 +1,6 @@
 import os
 import requests
 import discord
-import time
 from time import sleep
 from discord.ext import tasks
 from dotenv import load_dotenv
@@ -15,16 +14,6 @@ GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
 PICKLE_FILE_FLOOR      = '../Data/discord_last_floor.pickle'
 PICKLE_FILE_COLLECTION = '../Data/discord_collection.pickle'
 client = discord.Client()
-#
-#
-# dict_collection = {
-#     'Flooz': {
-#         'name':       'Flooz',
-#         'channel_id': 948283638385102899,
-#         'slug':       'gen-f',
-#         'last_floor': 0
-#     }
-# }
 
 
 def get_dict_collection():
@@ -40,7 +29,7 @@ def get_dict_collection():
 def get_last_floor(collection):
     dict_floor = load_pickle(PICKLE_FILE_FLOOR)
     try:
-        if 'Error' in dict_floor:
+        if collection not in dict_floor:
             dict_floor[collection] = 0
         return dict_floor
     except:
