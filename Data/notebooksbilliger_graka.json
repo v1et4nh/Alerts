@@ -3,42 +3,42 @@
         "name": "RTX 3060",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3060+nvidia",
-        "price": 550
+        "price": 300
     },
     "3060 Ti": {
         "name": "RTX 3060 Ti",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3060+ti+nvidia",
-        "price": 700
+        "price": 400
     },
     "3070 FE": {
         "name": "RTX 3070 Founders Edition",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/nvidia+geforce+rtx+3070+founders+edition+714793",
-        "price": 650
+        "price": 300
     },
     "3070": {
         "name": "RTX 3070",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3070+nvidia",
-        "price": 850
+        "price": 400
     },
     "3070 Ti": {
         "name": "RTX 3070 Ti",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3070+ti+nvidia",
-        "price": 950
+        "price": 500
     },
     "3080": {
         "name": "RTX 3080",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3080+nvidia",
-        "price": 1350
+        "price": 600
     },
     "3080 Ti": {
         "name": "RTX 3080 Ti",
         "flag": "price",
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3080+ti+nvidia",
-        "price": 1550
+        "price": 700
     }
 }
