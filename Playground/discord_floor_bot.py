@@ -176,6 +176,22 @@ async def on_message(message):
                 await message.channel.send(message_to_send)
         else:
             await message.channel.send("I need the slug or the OS-link of the collection")
+    elif message.content.startswith("!stop"):
+        dict_collection = get_dict_collection()
+        try:
+            for collection in dict_collection:
+                name = collection
+                collection = dict_collection[collection]
+                if collection['channel_id'] == message.channel.id:
+                    del dict_collection[name]
+                    save_pickle(dict_collection, PICKLE_FILE_COLLECTION)
+                    message_to_send = f"Success!\n" \
+                                      f"Floor price will no longer be tracked for the collection\n" \
+                                      f">>>>> *{name}* <<<<<\n\n"
+                    await message.channel.send(message_to_send)
+                    break
+        except:
+            pass
 
 
 while True:
