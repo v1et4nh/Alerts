@@ -7,14 +7,14 @@ from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_
 from Functions.scraping_tools import is_number_tryexcept, get_eth_price
 from bot_messages import end_message
 
-NAME        = ''
-PICKLE_FILE = '../Data/_last_counter.pickle'
-ADDRESS     = ''
-OPENSEA     = ''
-TOTALSUPPLY = 'totalSupply'
-MAXSUPPLY   = 'maxSupply'
-MINTPRICE   = 'price'
-BOT_CHATID  = bot_chatID_private
+NAME        = 'Mee6'
+PICKLE_FILE = '../Data/mee6_last_counter.pickle'
+ADDRESS     = '0x43d3cC4439d2Ac6Fb93032004f6c094A5C21B185'
+OPENSEA     = 'mee6-avatars-pre-reveal'
+TOTALSUPPLY = 'claimedSupply'
+MAXSUPPLY   = 'MAX_SUPPLY'
+MINTPRICE   = 0.25
+BOT_CHATID  = '-1001505542039'
 SLEEP       = 1
 
 
