@@ -1,4 +1,10 @@
+import os
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+API_KEY_NOMICS = str(os.getenv('NOMICS_API_KEY'))
 
 
 def get_response(url):
@@ -59,3 +65,16 @@ def get_name(collection):
     name  = data['collection']['name']
 
     return name
+
+
+def get_coin(coin):
+    url = f"https://api.nomics.com/v1/currencies/ticker?key={API_KEY_NOMICS}" \
+          f"&ids={coin}" \
+          f"&interval=1d" \
+          f"&convert=EUR"
+    data = requests.get(url).json()
+    name = data[0]['name']
+    symbol = data[0]['symbol']
+    price = float(data[0]['price'])
+
+    return name, symbol, price

@@ -6,13 +6,14 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
 from Functions.telegrambot import etherscan_api_key
-from Functions.scraping_tools import getOSstats, get_name
+from Functions.scraping_tools import getOSstats, get_name, get_coin
 
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')
 GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
 PICKLE_FILE_FLOOR      = '../Data/discord_last_floor.pickle'
 PICKLE_FILE_COLLECTION = '../Data/discord_collection.pickle'
+PICKLE_FILE_COIN       = '../Data/discord_coin.pickle'
 client = discord.Client()
 
 
@@ -22,6 +23,14 @@ def get_dict_collection():
         if 'Error' in dict_collection:
             return {}
         return dict_collection
+    except:
+        return {}
+
+
+def get_dict_coin():
+    dict_coin = load_pickle(PICKLE_FILE_COIN)
+    try:
+        return dict_coin
     except:
         return {}
 
@@ -69,8 +78,7 @@ def getETHprice():
 
 
 @tasks.loop(seconds=60)
-async def test():
-    dict_floor = {}
+async def floor():
     dict_collection = get_dict_collection()
     for collection in dict_collection:
         try:
@@ -133,6 +141,46 @@ async def test():
             pass
 
 
+@tasks.loop(seconds=60)
+async def coin_tracking():
+    dict_coin = get_dict_coin()
+    for coin in dict_coin.keys():
+        try:
+            coin       = dict_coin[coin]
+            channel_id = coin['channel_id']
+            slug       = coin['slug']
+            last_price = coin['price']
+            name, currency, price = get_coin(slug)
+
+            price = round(price, 2)
+            print(last_price)
+            if abs(last_price/price-1) > 0.04:
+                icon = ''
+                if last_price != 0:
+                    change_ratio = round((float(price / last_price) - 1) * 100, 2)
+                else:
+                    change_ratio = 0
+                change_ratio = str(change_ratio) + '%'
+                print(change_ratio)
+                if price >= last_price:
+                    icon = ':rocket:'
+                    change_ratio = '+' + str(change_ratio)
+                elif price < last_price:
+                    icon = ':small_red_triangle_down:'
+                dict_coin[currency]['price'] = price
+                # Get channel
+                channel = client.get_channel(int(channel_id))
+                embed = discord.Embed(
+                    title=f"{icon} {price} EUR ({change_ratio}) - {name} Price",
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name=f"**{name}**", value=f"{price} EUR")
+                await channel.send(embed=embed)
+                save_pickle(dict_coin, PICKLE_FILE_COIN)
+        except:
+            pass
+
+
 @client.event
 async def on_ready():
     for guild in client.guilds:
@@ -141,7 +189,8 @@ async def on_ready():
 
     print(f'{client.user} has connected to the following guild:')
     print(f'{guild.name}(id: {guild.id})')
-    test.start()
+    floor.start()
+    coin_tracking.start()
 
 
 @client.event
@@ -192,6 +241,48 @@ async def on_message(message):
                     break
         except:
             pass
+
+    ### Coin Tracker ###
+    elif message.content.startswith("!track"):
+        args = message.content.split(" ")
+        if len(args) == 2:
+            dict_coin = get_dict_coin()
+            user_input = args[1]
+            name, currency, price = get_coin(user_input)
+            if name is None:
+                await message.channel.send("Unknown currency")
+            else:
+                dict_coin[currency] = {
+                    'channel_id': message.channel.id,
+                    'name': name,
+                    'currency': currency,
+                    'slug': user_input,
+                    'price': 0.01
+                }
+                save_pickle(dict_coin, PICKLE_FILE_COIN)
+                message_to_send = f"Success!\n" \
+                                  f"Price of the coin\n" \
+                                  f">>>>> *{name}* <<<<<\n" \
+                                  f"will be tracked!\n\n"
+                await message.channel.send(message_to_send)
+        else:
+            await message.channel.send("I need the currency of the coin listed on nomics.com")
+    elif message.content.startswith("!untrack"):
+        args = message.content.split(" ")
+        if len(args) == 2:
+            dict_coin = get_dict_coin()
+            user_input = args[1]
+            try:
+                del dict_coin[user_input]
+                save_pickle(dict_coin, PICKLE_FILE_COIN)
+                message_to_send = f"Success!\n" \
+                                  f"Price will be no longer tracked for the coin\n" \
+                                  f">>>>> *{user_input}* <<<<<\n\n"
+                await message.channel.send(message_to_send)
+            except:
+                await message.channel.send("Something went wrong - Unknown coin")
+        else:
+            await message.channel.send("I need the symbol of the coin!")
 
 
 while True:
