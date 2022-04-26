@@ -153,7 +153,6 @@ async def coin_tracking():
             name, currency, price = get_coin(slug)
 
             price = round(price, 2)
-            print(last_price)
             if abs(last_price/price-1) > 0.04:
                 icon = ''
                 if last_price != 0:
@@ -161,7 +160,6 @@ async def coin_tracking():
                 else:
                     change_ratio = 0
                 change_ratio = str(change_ratio) + '%'
-                print(change_ratio)
                 if price >= last_price:
                     icon = ':rocket:'
                     change_ratio = '+' + str(change_ratio)
