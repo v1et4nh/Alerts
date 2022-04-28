@@ -59,6 +59,13 @@ def getOSstats(collection):
     return stats
 
 
+def getOScollection(collection):
+    url   = f"https://api.opensea.io/api/v1/collection/{collection}"
+    data  = getData(url)
+
+    return data
+
+
 def get_name(collection):
     url   = "https://api.opensea.io/api/v1/collection/" + collection
     data  = getData(url)

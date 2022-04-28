@@ -6,14 +6,16 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from Functions.file_handler import load_pickle, save_pickle
 from Functions.telegrambot import etherscan_api_key
-from Functions.scraping_tools import getOSstats, get_name, get_coin
+from Functions.scraping_tools import getOSstats, get_name, get_coin, getOScollection
 
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')
 GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
+OS_API  = str(os.getenv('OPENSEA_API_KEY'))
 PICKLE_FILE_FLOOR      = '../Data/discord_last_floor.pickle'
 PICKLE_FILE_COLLECTION = '../Data/discord_collection.pickle'
 PICKLE_FILE_COIN       = '../Data/discord_coin.pickle'
+PICKLE_FILE_SNIPER     = '../Data/discord_sniper.pickle'
 client = discord.Client()
 
 
@@ -31,6 +33,14 @@ def get_dict_coin():
     dict_coin = load_pickle(PICKLE_FILE_COIN)
     try:
         return dict_coin
+    except:
+        return {}
+
+
+def get_dict_sniper():
+    dict_sniper = load_pickle(PICKLE_FILE_SNIPER)
+    try:
+        return dict_sniper
     except:
         return {}
 
@@ -179,6 +189,38 @@ async def coin_tracking():
             pass
 
 
+@tasks.loop(seconds=60)
+async def sniper():
+    dict_sniper = get_dict_sniper()
+    for collection in dict_sniper:
+        try:
+            collection = dict_sniper[collection]
+            channel_id = collection['channel_id']
+            slug       = collection['slug']
+            os_data    = getOScollection(slug)
+            os_data    = os_data['collection']
+            contract   = os_data['primary_asset_contracts'][0]['address']
+            traits     = os_data['traits']
+            url  = f"https://api.opensea.io/api/v1/events?" \
+                   f"asset_contract_address={contract}" \
+                   f"&event_type=created" \
+                   f"&only_opensea=false" \
+                   f"&offset=0" \
+                   f"&limit=20"
+            headers = {
+                "Accept": "application/json",
+                "X-API-KEY": OS_API
+            }
+
+            response = requests.request("GET", url, headers=headers)
+            data = response.json()
+            dict_listing = {}
+            for idx, entry in enumerate(data['asset_events']):
+                current_price
+        except:
+            pass
+
+
 @client.event
 async def on_ready():
     for guild in client.guilds:
@@ -189,6 +231,7 @@ async def on_ready():
     print(f'{guild.name}(id: {guild.id})')
     floor.start()
     coin_tracking.start()
+    # sniper.start()
 
 
 @client.event
@@ -238,7 +281,7 @@ async def on_message(message):
                     await message.channel.send(message_to_send)
                     break
         except:
-            pass
+            message.channel.send("Something went wrong - Please Try Again")
 
     ### Coin Tracker ###
     elif message.content.startswith("!track"):
@@ -281,6 +324,50 @@ async def on_message(message):
                 await message.channel.send("Something went wrong - Unknown coin")
         else:
             await message.channel.send("I need the symbol of the coin!")
+
+    ### Sniper Tool ###
+    elif message.content.startswith("!sniper"):
+        args = message.content.split(" ")
+        if len(args) == 2:
+            dict_sniper = get_dict_sniper()
+            user_input  = args[1]
+            if "opensea.io" in user_input:
+                slug = user_input[user_input.rfind('/')+1:]
+            else:
+                slug = user_input
+            name = get_name(slug)
+            if name is None:
+                await message.channel.send('Wrong collection slug')
+            else:
+                dict_sniper[name] = {
+                    'name': name,
+                    'channel_id': message.channel.id,
+                    'slug': slug,
+                    'last_listing': 0
+                }
+                save_pickle(dict_sniper, PICKLE_FILE_SNIPER)
+                message_to_send = f"Success!\n" \
+                                  f"Sniper is set for the collection\n" \
+                                  f">>>>> *{name}* <<<<<\n\n"
+                await message.channel.send(message_to_send)
+        else:
+            await message.channel.send("I need the slug or the OS-link of the collection")
+    elif message.content.startswith("!stop sniper"):
+        dict_sniper = get_dict_sniper()
+        try:
+            for collection in dict_sniper:
+                name = collection
+                collection = dict_sniper[collection]
+                if collection['channel_id'] == message.channel.id:
+                    del dict_sniper[name]
+                    save_pickle(dict_sniper, PICKLE_FILE_SNIPER)
+                    message_to_send = f"Success!\n" \
+                                      f"Sniper is stopped for the collection\n" \
+                                      f">>>>> *{name}* <<<<<\n\n"
+                    await message.channel.send(message_to_send)
+                    break
+        except:
+            message.channel.send("Something went wrong, try again!")
 
 
 while True:
