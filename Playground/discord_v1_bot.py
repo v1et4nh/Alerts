@@ -13,7 +13,7 @@ from Functions.scraping_tools import getOSstats, get_name, get_coin, getOScollec
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')
 GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
-OS_API  = str(os.getenv('OPENSEA_API_KEY'))
+OS_API  = str(os.getenv('OPENSEA_API_KEY_2'))
 PICKLE_FILE_FLOOR      = '../Data/discord_last_floor.pickle'
 PICKLE_FILE_COLLECTION = '../Data/discord_collection.pickle'
 PICKLE_FILE_COIN       = '../Data/discord_coin.pickle'
