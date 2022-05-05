@@ -291,8 +291,8 @@ async def sniper():
                         )
                         embed.set_author(name=f"{coll_name}", url=coll_url, icon_url=coll_img)
                         embed.set_thumbnail(url=img)
-                        embed.add_field(name=f"**Price**", value=f"**Ξ{price} ({eur_price}€ | {usd_price}$)**", inline=True)
-                        embed.add_field(name=f"**Floor**", value=f"**Ξ{floor_price} ({eur_floor}€ | {usd_floor}$)**", inline=True)
+                        embed.add_field(name=f"**Price**", value=f"Ξ{price} ({eur_price}€ | {usd_price}$)", inline=True)
+                        embed.add_field(name=f"**Floor**", value=f"Ξ{floor_price} ({eur_floor}€ | {usd_floor}$)", inline=True)
                         embed.add_field(name=f"**listing time**", value=f"{str_timestamp} (<t:{int(current_timestamp)}:R>)", inline=False)
                         embed.add_field(name="**____________________**", value='**Properties**', inline=False)
                         for trait in dict_traits:
