@@ -215,8 +215,8 @@ async def sniper():
             }
 
             response = requests.request("GET", url, headers=headers)
-            data = response.json()
             print(f"resp code: {response.status_code}")
+            data = response.json()
             for asset in reversed(data['asset_events']):
                 # Get timestamp
                 last_time = collection['last_listing']
