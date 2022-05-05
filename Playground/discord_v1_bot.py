@@ -288,7 +288,7 @@ async def sniper():
                         for trait in dict_traits:
                             tmp_dict = dict_traits[trait]
                             embed.add_field(name=f"**{tmp_dict['name']}**", value=f"{tmp_dict['value']}", inline=True)
-                        embed.timestamp = datetime.datetime.now()
+                        embed.timestamp = datetime.datetime.now() - datetime.timedelta(hours=2)
                         embed.set_footer(text="v1_Bot", icon_url="https://pbs.twimg.com/profile_images/1493400962198822914/wOjOlROX_400x400.jpg")
                         await channel.send(embed=embed)
 
