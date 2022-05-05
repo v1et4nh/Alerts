@@ -193,7 +193,7 @@ async def coin_tracking():
             pass
 
 
-@tasks.loop(seconds=10)
+@tasks.loop(seconds=60)
 async def sniper():
     dict_sniper = get_dict_sniper()
     print(f"{dict_sniper}")

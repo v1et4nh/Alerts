@@ -69,7 +69,10 @@ def getOScollection(collection):
 def get_name(collection):
     url   = "https://api.opensea.io/api/v1/collection/" + collection
     data  = getData(url)
-    name  = data['collection']['name']
+    try:
+        name  = data['collection']['name']
+    except:
+        name = "Error"
 
     return name
 
