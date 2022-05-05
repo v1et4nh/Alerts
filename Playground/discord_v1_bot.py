@@ -13,7 +13,7 @@ from Functions.scraping_tools import getOSstats, get_name, get_coin, getOScollec
 load_dotenv()
 TOKEN   = os.getenv('DISCORD_TOKEN')
 GUILD   = os.getenv('DISCORD_GUILD_STS_V1')
-OS_API  = str(os.getenv('OPENSEA_API_KEY_2'))
+OS_API  = str(os.getenv('OPENSEA_API_KEY'))
 PICKLE_FILE_FLOOR      = '../Data/discord_last_floor.pickle'
 PICKLE_FILE_COLLECTION = '../Data/discord_collection.pickle'
 PICKLE_FILE_COIN       = '../Data/discord_coin.pickle'
@@ -210,6 +210,8 @@ async def sniper():
                   f"collection_slug={slug}" \
                   f"&event_type=created"
             headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+                "referrer": "https://api.opensea.io/api/v1",
                 "Accept": "application/json",
                 "X-API-KEY": OS_API
             }
@@ -270,10 +272,7 @@ async def sniper():
                         url = f"https://api.opensea.io/api/v1/assets?" \
                               f"token_ids={token_id}" \
                               f"&collection_slug={slug}"
-                        headers = {
-                            "Accept": "application/json",
-                            "X-API-KEY": OS_API
-                        }
+
                         resp = requests.request("GET", url, headers=headers)
                         data = resp.json()
                         dict_traits = data['assets'][0]['traits']
