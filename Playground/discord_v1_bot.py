@@ -1,6 +1,8 @@
 import os
 import requests
 import discord
+import time
+import datetime
 from time import sleep
 from discord.ext import tasks
 from dotenv import load_dotenv
@@ -40,6 +42,8 @@ def get_dict_coin():
 def get_dict_sniper():
     dict_sniper = load_pickle(PICKLE_FILE_SNIPER)
     try:
+        if 'Error' in dict_sniper:
+            return {}
         return dict_sniper
     except:
         return {}
@@ -189,24 +193,22 @@ async def coin_tracking():
             pass
 
 
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=10)
 async def sniper():
     dict_sniper = get_dict_sniper()
-    for collection in dict_sniper:
+    print(f"{dict_sniper}")
+    for collection_name in dict_sniper:
         try:
-            collection = dict_sniper[collection]
+            collection = dict_sniper[collection_name]
             channel_id = collection['channel_id']
             slug       = collection['slug']
             os_data    = getOScollection(slug)
             os_data    = os_data['collection']
-            contract   = os_data['primary_asset_contracts'][0]['address']
-            traits     = os_data['traits']
-            url  = f"https://api.opensea.io/api/v1/events?" \
-                   f"asset_contract_address={contract}" \
-                   f"&event_type=created" \
-                   f"&only_opensea=false" \
-                   f"&offset=0" \
-                   f"&limit=20"
+            # contract   = os_data['primary_asset_contracts'][0]['address']
+            # traits     = os_data['traits']
+            url = f"https://api.opensea.io/api/v1/events?" \
+                  f"collection_slug={slug}" \
+                  f"&event_type=created"
             headers = {
                 "Accept": "application/json",
                 "X-API-KEY": OS_API
@@ -214,9 +216,86 @@ async def sniper():
 
             response = requests.request("GET", url, headers=headers)
             data = response.json()
-            dict_listing = {}
-            for idx, entry in enumerate(data['asset_events']):
-                current_price
+            print(f"resp code: {response.status_code}")
+            for asset in reversed(data['asset_events']):
+                # Get timestamp
+                last_time = collection['last_listing']
+                str_timestamp = asset['listing_time']
+                if '.' in str_timestamp:
+                    str_timestamp = datetime.datetime.strptime(str_timestamp, "%Y-%m-%dT%H:%M:%S.%f")
+                else:
+                    str_timestamp = datetime.datetime.strptime(str_timestamp, "%Y-%m-%dT%H:%M:%S")
+                str_timestamp += datetime.timedelta(hours=2)
+                current_timestamp = time.mktime(str_timestamp.timetuple()) + (str_timestamp.microsecond / 1000000.0)
+
+                # Check if timestamp is later than last timestamp
+                if current_timestamp > last_time:
+                    # Payment token
+                    payment_token = asset['payment_token']['symbol']
+                    if payment_token != 'WETH':
+                        # Price
+                        price = int(asset['starting_price'])
+                        price = price / 1000000000000000000
+                        eur, usd, = getETHprice()
+                        eur_price = int(eur * price)
+                        usd_price = int(usd * price)
+
+                        # Other Data
+                        if asset['asset']:
+                            asset_index = 'asset'
+                        else:
+                            asset_index = 'asset_bundle'
+                            # Skip bundles
+                            continue
+                        os_url = asset[asset_index]['permalink']
+                        img    = asset[asset_index]['image_url']
+                        name   = asset[asset_index]['name']
+
+                        # Collection Info
+                        coll_img  = asset[asset_index]['collection']['image_url']
+                        coll_name = asset[asset_index]['collection']['name']
+                        coll_url  = f"https://opensea.io/collection/{slug}"
+
+                        # Traits
+                        token_id = asset[asset_index]['token_id']
+                        url = f"https://api.opensea.io/api/v1/assets?" \
+                              f"token_ids={token_id}" \
+                              f"&collection_slug={slug}"
+                        headers = {
+                            "Accept": "application/json",
+                            "X-API-KEY": OS_API
+                        }
+                        resp = requests.request("GET", url, headers=headers)
+                        data = resp.json()
+                        dict_traits = data['assets'][0]['traits']
+                        new_dict = {}
+                        for trait in dict_traits:
+                            new_dict[trait['trait_type']] = {'name': trait['trait_type'], 'value': trait['value']}
+                        dict_traits = new_dict
+
+                        # Send discord message
+                        channel = client.get_channel(int(channel_id))
+                        embed = discord.Embed(
+                            title=f"Ξ{price} - {name}",
+                            url=os_url,
+                            color=discord.Color.blue()
+                        )
+                        embed.set_author(name=f"{coll_name}", url=coll_url, icon_url=coll_img)
+                        embed.set_thumbnail(url=img)
+                        embed.add_field(name=f"**price**", value=f"**Ξ{price} ({eur_price}€ | {usd_price}$)**", inline=False)
+                        embed.add_field(name=f"**listing time**", value=f"{str_timestamp} (<t:{int(current_timestamp)}:R>)", inline=False)
+                        embed.add_field(name="**____________________**", value='**Properties**', inline=False)
+                        for trait in dict_traits:
+                            tmp_dict = dict_traits[trait]
+                            embed.add_field(name=f"**{tmp_dict['name']}**", value=f"{tmp_dict['value']}", inline=True)
+                        embed.timestamp = datetime.datetime.now()
+                        embed.set_footer(text="v1_Bot", icon_url="https://pbs.twimg.com/profile_images/1493400962198822914/wOjOlROX_400x400.jpg")
+                        await channel.send(embed=embed)
+
+                        # Store last_time
+                        collection['last_listing'] = current_timestamp
+                        dict_sniper[collection_name] = collection
+                        save_pickle(dict_sniper, PICKLE_FILE_SNIPER)
         except:
             pass
 
@@ -231,7 +310,7 @@ async def on_ready():
     print(f'{guild.name}(id: {guild.id})')
     floor.start()
     coin_tracking.start()
-    # sniper.start()
+    sniper.start()
 
 
 @client.event
@@ -352,7 +431,7 @@ async def on_message(message):
                 await message.channel.send(message_to_send)
         else:
             await message.channel.send("I need the slug or the OS-link of the collection")
-    elif message.content.startswith("!stop sniper"):
+    elif message.content.startswith("!deactivate sniper"):
         dict_sniper = get_dict_sniper()
         try:
             for collection in dict_sniper:
