@@ -11,12 +11,6 @@
         "url": "https://www.notebooksbilliger.de/pc+hardware/grafikkarten/nvidia/geforce+rtx+3060+ti+nvidia",
         "price": 400
     },
-    "3070 FE": {
-        "name": "RTX 3070 Founders Edition",
-        "flag": "price",
-        "url": "https://www.notebooksbilliger.de/nvidia+geforce+rtx+3070+founders+edition+714793",
-        "price": 300
-    },
     "3070": {
         "name": "RTX 3070",
         "flag": "price",
