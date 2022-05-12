@@ -93,7 +93,9 @@ def help(message):
 @bot.message_handler(commands=['floor'])
 def floor(message):
     chat_id    = str(message.chat.id)
+    print(chat_id)
     dict_user  = load_pickle(PICKLE_FILE)
+    print(dict_user)
     collection = dict_user[chat_id]['collection']
     if collection:
         send_message = get_current_floor_price(collection)
