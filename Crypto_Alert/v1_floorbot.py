@@ -229,7 +229,7 @@ def set_url(message):
         else:
             bot.send_message(message.chat.id, f"Invalid input!\nPlease make sure it is an opensea-url or a number and try again: ")
     except:
-        bot.send_message(message.chat.id, 'Invalid input! Use /help to see all available commands.')
+        bot.send_message(message.chat.id, 'Something went wrong :(\n Please try again or use /help to see all available commands.')
 
 
 # Start Bot

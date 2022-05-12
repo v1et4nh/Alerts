@@ -88,3 +88,18 @@ def get_coin(coin):
     price = float(data[0]['price'])
 
     return name, symbol, price
+
+
+def getETHprice():
+    url_eur = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=eur%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    url_usd = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    data_eur = requests.get(url_eur).json()
+    peur = round(data_eur["ethereum"]["eur"], 2)
+    peur = format(peur, ",")
+    peur_val = float(peur.replace(',', ''))
+    data = requests.get(url_usd).json()
+    pusd = round(data["ethereum"]["usd"], 2)
+    pusd = format(pusd, ",")
+    pusd_val = float(pusd.replace(',', ''))
+
+    return peur_val, pusd_val

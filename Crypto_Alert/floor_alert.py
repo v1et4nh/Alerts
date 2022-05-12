@@ -1,5 +1,6 @@
 import requests
 import time
+import os
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, bot_v1_floorbot_token, bot_v1_testbot_token
@@ -9,6 +10,7 @@ SLEEP               = 45
 PICKLE_FILE_PROJECT = '../Data/v1_floorbot_ids_collection.pickle'
 # PICKLE_FILE_FLOOR   = '../Data/v1_testbot_ids_last_floor.pickle'
 PICKLE_FILE_FLOOR   = '../Data/v1_floorbot_ids_last_floor.pickle'
+private_chat_id = str(os.getenv('TELEGRAM_V1ET4NH_CHATID'))
 
 
 def get_last_floor(chat_id):
@@ -80,10 +82,13 @@ def get_current_floor_price(collection):
               f"NFT-to-Holders-Ratio: *{ratio}*\n" \
               f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
               f"\nView on [Opensea]({url})"
-    message += f"\n\n-----\n" \
-               f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
-               f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
-               f"Love the bots? -> /donate <3"
+    if message.chat.id == int(private_chat_id) or message.chat.id == 1899354791:
+        pass
+    else:
+        message += f"\n\n-----\n" \
+                   f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
+                   f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
+                   f"Love the bots? -> /donate <3"
 
     return message
 

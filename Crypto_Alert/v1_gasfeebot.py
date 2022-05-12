@@ -12,6 +12,7 @@ PICKLE_FILE = '../Data/v1_gasfeebot_ids.pickle'
 # Load environment variables
 load_dotenv()
 bot_token = str(os.getenv('TELEGRAM_V1_GASFEEBOT_TOKEN'))   # Replace with your own bot_token
+private_chat_id = str(os.getenv('TELEGRAM_V1ET4NH_CHATID'))
 
 # Start Bot
 bot = telebot.TeleBot(bot_token, parse_mode='Markdown')
@@ -82,7 +83,7 @@ def help(message):
 
 @bot.message_handler(commands=['getUserCount'])
 def getuser(message):
-    if message.chat.id == 383615621 or message.chat.id == 1899354791:
+    if message.chat.id == int(private_chat_id) or message.chat.id == 1899354791:
         dict_user = load_pickle(PICKLE_FILE)
         count = len(dict_user)
         bot.send_message(message.chat.id, "Number of User using this bot: " + str(count))
@@ -108,7 +109,7 @@ def set_threshold(message):
         save_pickle(dict_user, PICKLE_FILE)
         bot.send_message(message.chat.id, 'Threshold successfully set to ' + str(threshold) + ' GWEI')
     except:
-        bot.send_message(message.chat.id, 'Invalid input! Use /help to see all available commands.')
+        bot.send_message(message.chat.id, 'Something went wrong :(\nPlease try again or use /help to see all available commands.')
 
 
 # Start Bot
