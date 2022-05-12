@@ -82,13 +82,10 @@ def get_current_floor_price(collection):
               f"NFT-to-Holders-Ratio: *{ratio}*\n" \
               f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
               f"\nView on [Opensea]({url})"
-    if message.chat.id == int(private_chat_id) or message.chat.id == 1899354791:
-        pass
-    else:
-        message += f"\n\n-----\n" \
-                   f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
-                   f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
-                   f"Love the bots? -> /donate <3"
+    message += f"\n\n-----\n" \
+               f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
+               f"Want to see more? -> [Visit my website](https://linktr.ee/v1et4nh)\n" \
+               f"Love the bots? -> /donate <3"
 
     return message
 
