@@ -202,13 +202,15 @@ async def sniper():
             collection = dict_sniper[collection_name]
             channel_id = collection['channel_id']
             slug       = collection['slug']
-            os_data    = getOScollection(slug)
-            os_data    = os_data['collection']
+            last_time  = collection['last_listing']
+            # os_data    = getOScollection(slug)
+            # os_data    = os_data['collection']
             # contract   = os_data['primary_asset_contracts'][0]['address']
             # traits     = os_data['traits']
             url = f"https://api.opensea.io/api/v1/events?" \
                   f"collection_slug={slug}" \
-                  f"&event_type=created"
+                  f"&event_type=created" \
+                  f"&occurred_after={int(last_time)}"
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
                 "referrer": "https://api.opensea.io/api/v1",
