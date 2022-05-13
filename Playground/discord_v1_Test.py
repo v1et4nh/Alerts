@@ -8,6 +8,7 @@ from time import sleep
 from discord.ext import tasks, commands
 from discord_ui import UI, SelectOption, SelectMenu
 from dotenv import load_dotenv
+from asyncio import TimeoutError
 from Functions.file_handler import load_pickle, save_pickle
 from Functions.telegrambot import etherscan_api_key
 from Functions.scraping_tools import getOSstats, get_name, get_coin, getOScollection, getETHprice
@@ -24,8 +25,6 @@ PICKLE_FILE_COIN       = '../Data/discord_coin.pickle'
 PICKLE_FILE_SNIPER     = '../Data/discord_sniper.pickle'
 PICKLE_FILE_DATA       = '../Data/discord_data.pickle'
 
-
-from asyncio import TimeoutError
 
 client = commands.Bot(" ")
 ui = UI(client)
@@ -169,12 +168,57 @@ async def on_message(message: discord.Message):
                         if str(user_input).isnumeric:
                             threshold = float(user_input)
 
+                            # Traits
+                            os_data = getOScollection(slug)
+                            os_data = os_data['collection']
+                            traits  = os_data['traits']
+                            selectTraits = []
+                            for trait in traits:
+                                selectTraits.append(eval(f"SelectOption('{trait}', label='{trait}')"))
+
+                            dict_trait_filter = {}
+                            msg = await message.channel.send("Do you want to add a trait-filter?", components=[SelectMenu(options=[
+                                SelectOption("Yes", label="Yes", description="Add Trait Filter"),
+                                SelectOption("No", label="No", description="No Trait Filter")
+                            ], max_values=1)])
+                            sel = await msg.wait_for("select", client, by=message.author, timeout=120)
+                            add_filter = sel.selected_options[0].content
+                            await sel.respond(f"You selected '{add_filter}'")
+                            while add_filter == 'Yes':
+                                try:
+                                    msg_trait = await message.channel.send("Select the trait:", components=[SelectMenu(options=selectTraits, max_values=1)])
+                                    sel = await msg_trait.wait_for("select", client, by=message.author, timeout=120)
+                                    sel_trait = sel.selected_options[0].content
+                                    if sel_trait not in dict_trait_filter:
+                                        dict_trait_filter[sel_trait] = []
+                                    await sel.respond(f"You selected {sel_trait}")
+                                    selectSubTraits = []
+                                    for trait in traits[sel_trait]:
+                                        selectSubTraits.append(eval(f"SelectOption('{trait}', label='{trait}')"))
+                                    msg_trait = await message.channel.send(f"Select the {sel_trait}-trait (multiple selection possible):", components=[SelectMenu(options=selectSubTraits, max_values=len(selectSubTraits))])
+                                    sel = await msg_trait.wait_for("select", client, by=message.author, timeout=120)
+                                    for subtrait in sel.selected_options:
+                                        if subtrait.content not in dict_trait_filter[sel_trait]:
+                                            dict_trait_filter[sel_trait].append(subtrait.content)
+                                    await sel.respond(f"Your filter selected so far: {dict_trait_filter}")
+                                    msg = await message.channel.send("Do you want to add a trait-filter?", components=[SelectMenu(options=[
+                                        SelectOption("Yes", label="Yes", description="Add Trait Filter"),
+                                        # SelectOption("Edit", label="Edit", description="Edit Trait Filter"),
+                                        SelectOption("No", label="No", description="No Trait Filter")
+                                    ], max_values=1)])
+                                    sel = await msg.wait_for("select", client, by=message.author, timeout=120)
+                                    add_filter = sel.selected_options[0].content
+                                    await sel.respond(f"You selected '{add_filter}'")
+                                except TimeoutError:
+                                    await msg.delete()
+
                             if name not in dict_data['sniper']:
                                 dict_data['sniper'][name] = {
                                     'name':         name,
                                     'slug':         slug,
                                     'channel_id':   {str(message.channel.id): threshold},
-                                    'last_listing': 0
+                                    'last_listing': 0,
+                                    'trait_filter': dict_trait_filter
                                 }
                             else:
                                 dict_data['sniper'][name]['channel_id'][str(message.channel.id)] = threshold
@@ -182,7 +226,8 @@ async def on_message(message: discord.Message):
                             message_to_send = f"Success!\n" \
                                               f"Sniper is set for the collection\n" \
                                               f">>>>> *{name}* <<<<<\n" \
-                                              f"with a threshold of {threshold}\n\n"
+                                              f"with a threshold of {threshold} with following trait filter:\n" \
+                                              f"{dict_trait_filter}\n"
                             await message.channel.send(message_to_send)
                         else:
                             await message.channel.send('Error: Threshold is not a number')
@@ -307,10 +352,7 @@ async def sniper():
             dict_channel_id = collection['channel_id']
             slug            = collection['slug']
             last_time       = collection['last_listing']
-            # os_data         = getOScollection(slug)
-            # os_data         = os_data['collection']
-            # contract   = os_data['primary_asset_contracts'][0]['address']
-            # traits     = os_data['traits']
+            dict_filter     = collection['trait_filter']
             url = f"https://api.opensea.io/api/v1/events?" \
                   f"collection_slug={slug}" \
                   f"&event_type=created" \
@@ -329,6 +371,7 @@ async def sniper():
                     OS_API = OS_API_2
                 else:
                     OS_API = OS_API_1
+                continue
             data = response.json()
             for asset in reversed(data['asset_events']):
                 # Get timestamp
@@ -391,6 +434,17 @@ async def sniper():
                         for trait in dict_traits:
                             new_dict[trait['trait_type']] = {'name': trait['trait_type'], 'value': trait['value']}
                         dict_traits = new_dict
+                        # Filter Traits
+                        bool_skip = False
+                        for trait in dict_filter:
+                            if trait not in dict_traits:
+                                bool_skip = True
+                                break
+                            if dict_traits[trait]['value'] not in dict_traits[trait]:
+                                bool_skip = True
+                                break
+                        if bool_skip:
+                            continue
 
                         # Send discord message
                         embed = discord.Embed(
