@@ -9,13 +9,13 @@ from bot_messages import end_message
 
 NAME        = 'Shamanzs'
 PICKLE_FILE = '../Data/shamanzs_last_counter.pickle'
-ADDRESS     = '0x3DA2133160967ed0aC99A807E3BF9Dc98Fb9a15c'
-OPENSEA     = 'shamanzs-official'
+ADDRESS     = '0xd4e53E3597a2ED999D37E974F1f36B15eB879Bad'
+OPENSEA     = 'shamanzs-genesis-official'
 TOTALSUPPLY = 'totalSupply'
 MAXSUPPLY   = 'MAX_SUPPLY'
-MINTPRICE   = 0.1
+MINTPRICE   = 'WHITELIST_COST'
 BOT_CHATID  = '-1001550620384'
-SLEEP       = 10
+SLEEP       = 1
 
 
 def get_hash(variable):
