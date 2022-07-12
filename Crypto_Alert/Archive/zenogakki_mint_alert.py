@@ -7,14 +7,14 @@ from Functions.telegrambot import telegram_bot_sendtext, etherscan_api_key, bot_
 from Functions.scraping_tools import is_number_tryexcept, get_eth_price
 from bot_messages import end_message
 
-NAME        = ''
-PICKLE_FILE = '../Data/_last_counter.pickle'
-ADDRESS     = ''
-OPENSEA     = ''
+NAME        = 'Zenogakki'
+PICKLE_FILE = '../Data/zenogakki_last_counter.pickle'
+ADDRESS     = '0x6372E41Cd6415261CF38DACCEfeD2f0cc206C282'
+OPENSEA     = 'zenogakki-official-genesis'
 TOTALSUPPLY = 'totalSupply'
-MAXSUPPLY   = 'maxSupply'
-MINTPRICE   = 'price'
-BOT_CHATID  = bot_chatID_private
+MAXSUPPLY   = 'MAX_COLLECTION_SIZE'
+MINTPRICE   = 'PRESALE_PRICE'
+BOT_CHATID  = '-1001520496104'
 SLEEP       = 1
 
 
@@ -57,7 +57,6 @@ def getMintedAmount(dict_data):
     To get the data hash value use this website: https://emn178.github.io/online-tools/keccak_256.html
     E.g. if you look for getAmountMinted() on the readContract-site -> insert getAmountMinted() and use 0x and
     the first 8 characters -> 0xe777df20
-    If there is input parameter like totalSupply(1) then use Inspection in the browser and see what data is sent
     """
     url = f"https://api.etherscan.io/api?module=proxy&action=eth_call&to={dict_data['address']}" \
           f"&data=0x{get_hash(TOTALSUPPLY)}" \
