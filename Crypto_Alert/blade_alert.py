@@ -100,6 +100,7 @@ def main(time_intervall=SLEEP):
     while True:
         try:
             print(time.strftime('%X %x %Z'))
+            print(NAME)
             run_airdrop_checker()
             sleep(time_intervall)
         except:
