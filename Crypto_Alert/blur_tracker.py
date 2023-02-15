@@ -51,8 +51,9 @@ def run():
     usd      = float(get_blur_price())
     if abs(last_usd/usd - 1) >= 0.03:
         message = f"Blur: <b>{usd}</b> USD\n"
-        message += '\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'
-        message += '\nCheck out my other [Telegram-Bots](https://linktr.ee/v1et4nh)'
+        message += "\n-----\nIf you have any issues or feedback, " \
+                   "feel free to <a href='tg://user?id=383615621'>contact me</a> :)"
+        message += "\nCheck out my other <a href='https://linktr.ee/v1et4nh'>Telegram-Bots</a>"
         telegram_bot_sendtext(message, bot_chatID='-1001863970248', disable_web_page_preview=True, parse_mode='HTML')
         save_pickle(usd, PICKLE_FILE)
 
