@@ -9,8 +9,8 @@ def save_pickle(save_obj, str_file_path):
         with open(str_file_path, 'wb') as f:
             pickle.dump(save_obj, f, pickle.HIGHEST_PROTOCOL)
         return 'SUCCESS'
-    except:
-        return 'ERROR'
+    except Exception as e:
+        return 'ERROR' + str(e)
 
 
 def load_pickle(str_file_path):

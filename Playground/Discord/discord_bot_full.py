@@ -1,6 +1,7 @@
 import os
 import logging
 import discord
+from discord.ext import tasks
 from time import sleep
 from dotenv import load_dotenv
 
@@ -14,7 +15,7 @@ GUILD     = os.getenv('DISCORD_GUILD_STS_V1')
 OS_API    = str(os.getenv('OPENSEA_API_KEY'))
 OS_API_1  = str(os.getenv('OPENSEA_API_KEY'))
 OS_API_2  = str(os.getenv('OPENSEA_API_KEY_2'))
-PICKLE_FILE_DATA = '../Data/discord_bot_full_test_data.pickle'
+PICKLE_FILE_DATA = '../../Data/discord_bot_full_test_data.pickle'
 TIMEOUT   = 60
 
 
@@ -31,7 +32,8 @@ def get_dict_data():
     try:
         if 'Error' in dict_data:
             dict_data = dict_blueprint
-    except:
+    except Exception as e:
+        print(f'get_dict_data Error: {e}')
         dict_data = dict_blueprint
     return dict_data
 
@@ -89,9 +91,9 @@ class ToolDropdownView(discord.ui.View):
 
 
 class MyClient(discord.Client):
-
     async def on_ready(self):
-        print("Logged on as ", self.user)
+        print("Logged on as", self.user)
+        self.task_floor.start()
 
     async def on_message(self, message):
         # don't respond to ourselves
@@ -137,7 +139,8 @@ class MyClient(discord.Client):
                             else:
                                 dict_data['floor'][slug]['channel_id'][str(message.channel.id)] = threshold
                                 dict_data['floor'][slug]['user_id'][str(message.author)] = threshold
-                            save_pickle(dict_data, PICKLE_FILE_DATA)
+                            save_status = save_pickle(dict_data, PICKLE_FILE_DATA)
+                            print(save_status)
                             message_to_send = f"Success!\n" \
                                               f"Floor price of the collection\n" \
                                               f">>>>> *{name}* <<<<<\n" \
@@ -151,11 +154,83 @@ class MyClient(discord.Client):
                 else:
                     await message.channel.send(status)
 
+    @tasks.loop(seconds=5)
+    async def task_floor(self):
+        print('Loop started')
+        dict_data = get_dict_data()
+        dict_collection = dict_data['floor']
+        for collection in dict_collection:
+            try:
+                collection      = dict_collection[collection]
+                dict_channel_id = collection['channel_id']
+                slug            = collection['slug']
+                stats           = getOSstats(slug)
+                last_floor      = collection['last_floor']
 
-# Starting Point #
+                # Get floor price
+                try:
+                    floor_price = float(stats['floor_price'])
+                except Exception as e:
+                    print(f'Get floor price Error: {e}')
+                    floor_price = 0
+                collection['last_floor']               = floor_price
+                dict_data['floor'][collection['name']] = collection
 
+                # Trigger
+                if abs(floor_price-last_floor) > 0:
+                    icon = ''
+                    if last_floor != 0:
+                        change_ratio = round((float(floor_price / last_floor) - 1) * 100, 2)
+                    else:
+                        change_ratio = 0
+                    change_ratio  = str(change_ratio) + '%'
+                    if floor_price > last_floor:
+                        icon = ':rocket:'
+                        change_ration = '+' + str(change_ratio)
+                    elif floor_price < last_floor:
+                        icon = ':small_red_triangle_down:'
+
+                    # Get FIAT price
+                    eur, usd, = getETHprice()
+                    eur_price = int(eur * floor_price)
+                    usd_price = int(usd * floor_price)
+
+                    try:
+                        ratio = round(stats['count'] / stats['num_owners'], 2)
+                    except Exception as e:
+                        print(f'Ratio calculation error: {e}')
+                        ratio = 0
+
+                    url = 'https://opensea.io/collection/' + slug
+
+                    embed = discord.Embed(
+                        title=f"{icon} Ξ{floor_price} ({change_ratio}) - {collection['name']} Floor",
+                        url=url,
+                        color=discord.Color.blue()
+                    )
+                    embed.add_field(name=f"**{collection['name']} Floor**", value=f"Ξ{floor_price} ({eur_price}€ | {usd_price}$)",
+                                    inline=False)
+                    embed.add_field(name="NFTs", value=str(int(stats['count'])), inline=True)
+                    embed.add_field(name="Holders", value=str(stats['num_owners']), inline=True)
+                    embed.add_field(name="NFT-to-Holders-Ratio", value=str(ratio), inline=False)
+                    embed.add_field(name="Volume traded", value=str(round(stats['total_volume'], 2)), inline=False)
+
+                    # Get channel
+                    for channel_id in dict_channel_id:
+                        channel = client.get_channel(int(channel_id))
+                        # Only send, if floor is below threshold
+                        threshold = dict_channel_id[channel_id]
+                        if threshold == 0 or floor_price <= threshold:
+                            await channel.send(embed=embed)
+
+                    # Save collection
+                    save_pickle(dict_data, PICKLE_FILE_DATA)
+            except Exception as e:
+                print(f'Floor task error: {e}')
+
+
+# ----- Starting Point ----- #
 logging_handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-
 while True:
     try:
         print('Bot started..')
@@ -165,5 +240,5 @@ while True:
         client.run(TOKEN, log_handler=logging_handler)
     except Exception as e:
         sleep(5)
-        print(e)
+        print(f'Bot error: {e}')
         print('Bot restart..')
