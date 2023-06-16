@@ -15,7 +15,7 @@ PICKLE_FILE = '../Data/rtfkt_blade.pickle'
 ADDRESS     = '0x43764F5B8973F62A6f10914516131c1489E3190D'
 OPENSEA     = 'rtfkt-x-tm-nyc'
 BOT_CHATID  = '-1001784551695'
-SLEEP       = 10
+SLEEP       = 3600
 
 
 def get_transaction(occurred_after):

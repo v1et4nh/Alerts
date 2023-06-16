@@ -11,6 +11,7 @@ PICKLE_FILE_PROJECT = '../Data/v1_floorbot_ids_collection.pickle'
 # PICKLE_FILE_FLOOR   = '../Data/v1_testbot_ids_last_floor.pickle'
 PICKLE_FILE_FLOOR   = '../Data/v1_floorbot_ids_last_floor.pickle'
 private_chat_id = str(os.getenv('TELEGRAM_V1ET4NH_CHATID'))
+OS_API          = str(os.getenv('OPENSEA_API_KEY'))
 
 
 def get_last_floor(chat_id):
@@ -24,9 +25,11 @@ def get_last_floor(chat_id):
 
 
 def getData(url):
-    res = requests.get(url)
+    res = requests.get(url, headers={"accept": "application/json",
+                                     "X-API-KEY": OS_API})
     if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0",
+                                         "X-API-KEY": OS_API})
         if res.status_code != 200:
             return 'RequestsError'
     data = res.json()

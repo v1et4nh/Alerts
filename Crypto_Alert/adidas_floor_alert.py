@@ -1,5 +1,6 @@
 import requests
 import time
+import os
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private
@@ -9,6 +10,7 @@ OPENSEA     = 'adidasoriginals'
 SLEEP       = 60
 PRICE_ALARM = 99999  # ETH
 PICKLE_FILE = '../Data/adidas_last_floor.pickle'
+OS_API      = str(os.getenv('OPENSEA_API_KEY'))
 
 
 def get_last_message():
@@ -20,9 +22,11 @@ def get_last_message():
 
 
 def getData(url):
-    res = requests.get(url)
+    res = requests.get(url, headers={"accept": "application/json",
+                                     "X-API-KEY": OS_API})
     if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0",
+                                         "X-API-KEY": OS_API})
         if res.status_code != 200:
             return 'RequestsError'
     data = res.json()

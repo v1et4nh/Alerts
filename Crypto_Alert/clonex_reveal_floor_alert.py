@@ -1,3 +1,4 @@
+import os
 import requests
 import time
 from time import sleep
@@ -9,6 +10,7 @@ OPENSEA     = 'clonex'
 SLEEP       = 60
 PRICE_ALARM = 999999  # ETH
 PICKLE_FILE = '../Data/clonex_revealed_last_floor.pickle'
+OS_API      = str(os.getenv('OPENSEA_API_KEY'))
 
 
 def get_last_message():
@@ -20,9 +22,11 @@ def get_last_message():
 
 
 def getData(url):
-    res = requests.get(url)
+    res = requests.get(url, headers={"accept": "application/json",
+                                     "X-API-KEY": OS_API})
     if res.status_code != 200:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0",
+                                         "X-API-KEY": OS_API})
         if res.status_code != 200:
             return 'RequestsError'
     data = res.json()
