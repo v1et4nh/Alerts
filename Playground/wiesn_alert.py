@@ -33,8 +33,8 @@ def main():
     if 'Reservierungen für Tische am Vormittag' in data:
         dict_data['vormittag'] = data[1:]
 
-    if dict_data['vormittag']:
-        message = dict_data['vormittag']
+    if dict_data['abend']:
+        message = dict_data['abend']
         telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
         message = f"Achja, hier noch der Link: {URL}"
         telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
