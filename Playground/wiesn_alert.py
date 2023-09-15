@@ -8,7 +8,10 @@ from Functions.telegrambot import telegram_bot_sendtext
 
 URL = "https://www.oktoberfest-booking.com/de/reseller-angebote"
 os.environ['MOZ_HEADLESS'] = '1'
-driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+if os.name == 'nt':
+    driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+else:
+    driver = webdriver.Firefox()
 driver.get(URL)
 gesamt = driver.find_element(By.CSS_SELECTOR, "div.tw-mt-2:nth-child(2)")
 data   = gesamt.text.split('\n')
