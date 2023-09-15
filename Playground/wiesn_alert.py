@@ -50,4 +50,6 @@ if __name__ == '__main__':
             sleep(300)
         except:
             print('Restart...')
+            message = 'Iwas stimmt mit dem Wiesn Alert nicht'
+            telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
             sleep(300)
