@@ -36,6 +36,9 @@ def main():
     if dict_data['abend']:
         message = dict_data['abend']
         telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
+        message = f"Achja, hier noch der Link: {URL}"
+        telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
+
 
     driver.close()
     print(f"Success: {dict_data['abend']}")
