@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from Functions.telegrambot import telegram_bot_sendtext
 
 
-def main():
+def main(last_message=''):
     URL = "https://www.oktoberfest-booking.com/de/reseller-angebote"
     os.environ['MOZ_HEADLESS'] = '1'
     if os.name == 'nt':
@@ -35,21 +35,24 @@ def main():
 
     if dict_data['abend']:
         message = dict_data['abend']
-        telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
-        message = f"Achja, hier noch der Link: {URL}"
-        telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
-
+        if message == last_message:
+            last_message = message
+            telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
+            message = f"Achja, hier noch der Link: {URL}"
+            telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
 
     driver.close()
     print(f"Success: {dict_data['abend']}")
+    return last_message
 
 
 if __name__ == '__main__':
+    last_message = ''
     while True:
         print('Wiesn Alert:')
         try:
             print(time.strftime('%X %x %Z'))
-            main()
+            last_message = main(last_message)
             sleep(300)
         except:
             print('Restart...')
