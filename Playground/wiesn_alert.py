@@ -35,7 +35,7 @@ def main(last_message=''):
 
     if dict_data['abend']:
         message = dict_data['abend']
-        if message == last_message:
+        if message != last_message:
             last_message = message
             telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
             message = f"Achja, hier noch der Link: {URL}"
