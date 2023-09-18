@@ -7,42 +7,51 @@ from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from Functions.telegrambot import telegram_bot_sendtext
 
+URL   = "https://www.oktoberfest-booking.com/de/reseller-angebote"
+SLEEP = 300
+
+
+def get_data(driver, label):
+    try:
+        element = driver.find_element(By.XPATH, f"//*[contains(text(), '{label}')]/following-sibling::div")
+        return element.text.split('\n')
+    except:
+        return []
+
 
 def main(last_message=''):
-    URL = "https://www.oktoberfest-booking.com/de/reseller-angebote"
     os.environ['MOZ_HEADLESS'] = '1'
+
     if os.name == 'nt':
         driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
     else:
         driver = webdriver.Firefox()
+
     driver.get(URL)
-    gesamt = driver.find_element(By.CSS_SELECTOR, "div.tw-mt-2:nth-child(2)")
-    data   = gesamt.text.split('\n')
 
-    dict_data = {'vormittag': [],
-                 'mittag':    [],
-                 'abend':     []}
-    if 'Reservierungen für Tische am Abend' in data:
-        idx = data.index('Reservierungen für Tische am Abend')
-        dict_data['abend'] = data[idx+1:]
-        data  = data[:idx]
-    if 'Reservierungen für Tische am Mittag' in data:
-        idx = data.index('Reservierungen für Tische am Mittag')
-        dict_data['mittag'] = data[idx+1:]
-        data   = data[:idx]
-    if 'Reservierungen für Tische am Vormittag' in data:
-        dict_data['vormittag'] = data[1:]
+    labels    = ['Vormittag', 'Mittag', 'Nachmittag', 'Abend']
+    dict_data = {label.lower(): get_data(driver, f'Reservierungen für Tische am {label}') for label in labels}
 
-    if dict_data['abend']:
-        message = dict_data['abend']
-        if message != last_message:
-            last_message = message
-            telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
-            message = f"Achja, hier noch der Link: {URL}"
-            telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
+    total_message = ''
+
+    for label, data in dict_data.items():
+        msg_bool = False
+        if data:
+            for i in range(0, len(data), 12):
+                tmp_msg = ' | '.join(data[i+1:i + 12]) + '\n---\n'
+                if label == 'abend' or any(day in tmp_msg for day in ['Freitag', 'Samstag', 'Sonntag']):
+                    msg_bool = True
+                    total_message += tmp_msg
+            if msg_bool:
+                total_message += '\n'
+
+    if total_message != last_message:
+        last_message   = total_message
+        total_message += f"Hier entlang: {URL}"
+        telegram_bot_sendtext(total_message, bot_chatID='-1001575230467', disable_web_page_preview=True)
 
     driver.close()
-    print(f"Success: {dict_data['abend']}")
+    print(f"Success: {total_message}")
     return last_message
 
 
@@ -53,9 +62,9 @@ if __name__ == '__main__':
         try:
             print(time.strftime('%X %x %Z'))
             last_message = main(last_message)
-            sleep(300)
-        except:
+            sleep(SLEEP)
+        except Exception as e:
             print('Restart...')
-            message = 'Iwas stimmt mit dem Wiesn Alert nicht'
+            message = f'Irgendetwas stimmt mit dem Wiesn Alert nicht. Fehlermeldung: \n{e}'
             telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
-            sleep(300)
+            sleep(SLEEP)
