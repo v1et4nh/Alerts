@@ -38,7 +38,7 @@ def main(last_message=''):
         msg_bool = False
         if data:
             for i in range(0, len(data), 12):
-                tmp_msg = ' | '.join(data[i+1:i + 12]) + '\n---\n'
+                tmp_msg = ' | '.join(data[i+1:i + 11]) + '\n---\n'
                 if label == 'abend' or any(day in tmp_msg for day in ['Freitag', 'Samstag', 'Sonntag']):
                     msg_bool = True
                     total_message += tmp_msg
