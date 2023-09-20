@@ -39,7 +39,11 @@ def main(last_message=''):
         if data:
             for i in range(0, len(data), 12):
                 tmp_msg = ' | '.join(data[i+1:i + 11]) + '\n---\n'
-                if label == 'abend' or any(day in tmp_msg for day in ['Freitag', 'Samstag', 'Sonntag']):
+                if 'Bodos Cafezelt' in tmp_msg:  # Blacklist
+                    continue
+                if label in ['nachmittag', 'abend'] or \
+                        any(day in tmp_msg for day in ['Freitag', 'Samstag', 'Sonntag']) or \
+                        any(date in tmp_msg for date in ['01.10.2023', '02.10.2023', '03.10.2023']):
                     msg_bool = True
                     total_message += tmp_msg
             if msg_bool:
