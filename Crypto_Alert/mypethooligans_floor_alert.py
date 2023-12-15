@@ -49,9 +49,13 @@ def getETHprice():
 
 
 def getOSstats(collection=OPENSEA):
-    url = "https://api.opensea.io/api/v1/collection/" + collection
+    url = "https://api.opensea.io/api/v2/collections/" + collection + "/stats"
     data = getData(url)
-    stats = data['collection']['stats']
+    stats = data['total']
+    url = "https://api.opensea.io/api/v2/collections/" + collection
+    data = getData(url)
+    total_supply = int(data["rarity"]["tokens_scored"])
+    stats['total_supply'] = total_supply
 
     return stats
 

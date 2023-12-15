@@ -52,8 +52,9 @@ def main():
     os_data = getOSstats(OPENSEA)
     total_supply = int(os_data['total_supply'])
     hex_prefix = "0xa1de6e35"
-    clone_dict = defaultdict(list)
-    for id in tqdm(range(1, total_supply + 1)):
+    # clone_dict = defaultdict(list)
+    clone_dict = load_pickle('../Data/clonex_egg_claimed.pickle')
+    for id in tqdm(range(len(clone_dict['id']) + 1, total_supply + 1)):
         if id != 1:
             clone_dict  = load_pickle('../Data/clonex_egg_claimed.pickle')
         id_hex      = hex(id).replace('0x', '')
@@ -84,7 +85,7 @@ def main():
         clone_dict['price'].append(get_asset_price(id, CONTRACT))
         clone_dict['url'].append(f"https://opensea.io/assets/ethereum/0x49cf6f5d44e70224e2e23fdcdd2c053f30ada28b/{id}")
         save_pickle(clone_dict, '../Data/clonex_egg_claimed.pickle')
-        sleep(0.25)
+        sleep(1)
 
     return pd.DataFrame(clone_dict)
 

@@ -52,9 +52,13 @@ def getETHprice():
 
 
 def getOSstats(collection):
-    url   = "https://api.opensea.io/api/v1/collection/" + collection
-    data  = getData(url)
-    stats = data['collection']['stats']
+    url = "https://api.opensea.io/api/v2/collections/" + collection + "/stats"
+    data = getData(url)
+    stats = data['total']
+    url = "https://api.opensea.io/api/v2/collections/" + collection
+    data = getData(url)
+    total_supply = int(data["rarity"]["tokens_scored"])
+    stats['total_supply'] = total_supply
 
     return stats
 
@@ -83,7 +87,7 @@ def get_current_floor_price(collection):
               f"NFTs: *{int(stats['count'])}*\n" \
               f"Holders: *{stats['num_owners']}*\n" \
               f"NFT-to-Holders-Ratio: *{ratio}*\n" \
-              f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
+              f"Volume traded: *{round(stats['volume'], 2)} ETH*\n" \
               f"\nView on [Opensea]({url})"
     message += f"\n\n-----\n" \
                f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
