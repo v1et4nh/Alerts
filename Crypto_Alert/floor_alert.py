@@ -197,7 +197,7 @@ def run_os_stats():
                                    f"{error_counter}) {chat_id} failed\n" \
                                    f"Collection: {collection}\n" \
                                    f"Error: {e} \n" \
-                                   f"Traceback: {traceback_string}"
+                                   # f"Traceback: {traceback_string}"
                     telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
             except:
                 send_message = f"*Floor Bot - Collection Error*\n" \
