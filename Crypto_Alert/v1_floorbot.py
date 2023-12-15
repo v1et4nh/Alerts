@@ -149,6 +149,7 @@ def clean_dict(message):
         for chat_id in empty_chat_ids:
             dict_user.pop(chat_id)
         len_dict_after = len(dict_user)
+        save_pickle(dict_user, PICKLE_FILE)
         bot.send_message(message.chat.id, f'User Dictionary reduced from {len_dict_before} to {len_dict_after}')
     else:
         bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
