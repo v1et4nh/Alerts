@@ -138,7 +138,7 @@ def run_os_stats():
                 dict_user[chat_id]['alert_type'] = '<'
                 alert_type = dict_user[chat_id]['alert_type']
             if collection not in dict_current_floor:
-                sleep(5)
+                sleep(1)
                 stats = getOSstats(collection)
                 if stats == 'RequestsError':
                     error_counter += 1
