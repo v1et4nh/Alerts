@@ -138,16 +138,16 @@ def run_os_stats():
                     eur_price = int(eur * floor_price)
                     usd_price = int(usd * floor_price)
                     try:
-                        ratio = round(stats['count']/stats['num_owners'], 2)
+                        ratio = round(stats['total_supply']/stats['num_owners'], 2)
                     except:
                         ratio = 0
                     url       = 'https://opensea.io/collection/' + collection
                     message   = f"*{stats['floor_price']} ETH* - *{get_name(collection)}*\n" \
                                 f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
-                                f"NFTs: *{int(stats['count'])}*\n" \
+                                f"NFTs: *{int(stats['total_supply'])}*\n" \
                                 f"Holders: *{stats['num_owners']}*\n" \
                                 f"NFT-to-Holders-Ratio: *{ratio}*\n" \
-                                f"Volume traded: *{round(stats['total_volume'], 2)} ETH*\n" \
+                                f"Volume traded: *{round(stats['volume'], 2)} ETH*\n" \
                                 f"\nView on [Opensea]({url})"
                     message  += f"\n\n-----\n" \
                                 f"Issues or Feedback? -> [contact me](tg://user?id=383615621) :)\n" \
