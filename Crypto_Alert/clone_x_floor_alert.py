@@ -67,7 +67,7 @@ def run_os_stats():
     stats = getOSstats()
     last_floor = get_last_message()
     floor_price = float(stats['floor_price'])
-    message  = NAME + ': ' + str(floor_price) + ' ETH | Remaining: ' + str(int(stats['total_supply']))
+    message  = NAME + ': ' + str(floor_price) + ' ETH | Remaining: ' + str(stats['total_supply'])
     print(message)
     if floor_price < PRICE_ALARM and abs(floor_price - last_floor) > 0.01:
         eur, usd, = getETHprice()
