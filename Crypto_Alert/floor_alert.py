@@ -107,7 +107,7 @@ def run_os_stats():
     error_counter      = 0
     for chat_id in dict_user:
         try:
-            collection      = dict_user[chat_id]['collection']
+            collection      = dict_user[chat_id]['collection'].replace('?tab=activity', '')
             floor_threshold = dict_user[chat_id]['threshold']
             try:
                 alert_type  = dict_user[chat_id]['alert_type']
