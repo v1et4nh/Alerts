@@ -72,7 +72,7 @@ def run_os_stats():
         usd_price = int(usd * floor_price)
         url       = 'https://opensea.io/collection/' + OPENSEA
         message   = '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
-        message  += '\nVolume traded: *' + str(int(stats['total_volume'])) + ' ETH*'
+        message  += '\nVolume traded: *' + str(int(stats['volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
         message  += '\n\nView in [Opensea](' + url + ')'
         message  += '\n\n-----\nIf you have any issues or feedback, feel free to [contact me](tg://user?id=383615621) :)'

@@ -84,7 +84,7 @@ def get_current_floor_price(collection):
     url = 'https://opensea.io/collection/' + collection
     message = f"*{get_name(collection)}*\n" \
               f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
-              f"NFTs: *{int(stats['count'])}*\n" \
+              f"NFTs: *{int(stats['total_supply'])}*\n" \
               f"Holders: *{stats['num_owners']}*\n" \
               f"NFT-to-Holders-Ratio: *{ratio}*\n" \
               f"Volume traded: *{round(stats['volume'], 2)} ETH*\n" \
