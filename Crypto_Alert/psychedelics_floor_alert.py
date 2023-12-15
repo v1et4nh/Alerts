@@ -52,9 +52,12 @@ def getOSstats(collection=OPENSEA):
     url = "https://api.opensea.io/api/v2/collections/" + collection + "/stats"
     data = getData(url)
     stats = data['total']
-    url = "https://api.opensea.io/api/v2/collections/" + collection
-    data = getData(url)
-    total_supply = int(data["rarity"]["tokens_scored"])
+    try:
+        url = "https://api.opensea.io/api/v2/collections/" + collection
+        data = getData(url)
+        total_supply = int(data["rarity"]["tokens_scored"])
+    except:
+        total_supply = 'unknown'
     stats['total_supply'] = total_supply
 
     return stats

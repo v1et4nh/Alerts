@@ -52,9 +52,12 @@ def getOSstats(collection=OPENSEA):
     url = "https://api.opensea.io/api/v2/collections/" + collection + "/stats"
     data = getData(url)
     stats = data['total']
-    url = "https://api.opensea.io/api/v2/collections/" + collection
-    data = getData(url)
-    total_supply = int(data["rarity"]["tokens_scored"])
+    try:
+        url = "https://api.opensea.io/api/v2/collections/" + collection
+        data = getData(url)
+        total_supply = int(data["rarity"]["tokens_scored"])
+    except:
+        total_supply = 'unknown'
     stats['total_supply'] = total_supply
 
     return stats
@@ -72,7 +75,7 @@ def run_os_stats():
         usd_price = int(usd * floor_price)
         url       = 'https://opensea.io/collection/' + OPENSEA
         message  += '\n\nFloor Price: *' + str(stats['floor_price']) + ' ETH* (*' + str(eur_price) + ' EUR* | *' + str(usd_price) + ' USD*)'
-        message  += '\nMint Vials remaining: *' + str(int(stats['total_supply'])) + '*'
+        message  += '\nMint Vials remaining: *' + str(stats['total_supply']) + '*'
         message  += '\nVolume traded: *' + str(int(stats['volume'])) + ' ETH*'
         message  += '\nHolders: *' + str(stats['num_owners']) + '*'
         message  += '\n\nView in [Opensea](' + url + ')'

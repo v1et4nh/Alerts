@@ -55,9 +55,12 @@ def getOSstats(collection):
     url = "https://api.opensea.io/api/v2/collections/" + collection + "/stats"
     data = getData(url)
     stats = data['total']
-    url = "https://api.opensea.io/api/v2/collections/" + collection
-    data = getData(url)
-    total_supply = int(data["rarity"]["tokens_scored"])
+    try:
+        url = "https://api.opensea.io/api/v2/collections/" + collection
+        data = getData(url)
+        total_supply = int(data["rarity"]["tokens_scored"])
+    except:
+        total_supply = 'unknown'
     stats['total_supply'] = total_supply
 
     return stats
@@ -78,13 +81,13 @@ def get_current_floor_price(collection):
     eur_price = int(eur * floor_price)
     usd_price = int(usd * floor_price)
     try:
-        ratio = round(stats['count'] / stats['num_owners'], 2)
+        ratio = round(stats['total_supply'] / stats['num_owners'], 2)
     except:
         ratio = 0
     url = 'https://opensea.io/collection/' + collection
     message = f"*{get_name(collection)}*\n" \
               f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
-              f"NFTs: *{int(stats['total_supply'])}*\n" \
+              f"NFTs: *{stats['total_supply']}*\n" \
               f"Holders: *{stats['num_owners']}*\n" \
               f"NFT-to-Holders-Ratio: *{ratio}*\n" \
               f"Volume traded: *{round(stats['volume'], 2)} ETH*\n" \
