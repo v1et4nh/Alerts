@@ -130,7 +130,7 @@ def run_os_stats():
     eur, usd, = getETHprice()
     for chat_id in dict_user:
         try:
-            collection      = dict_user[chat_id]['collection'].replace('?tab=activity', '')
+            collection      = dict_user[chat_id]['collection'].split('?')[0]
             floor_threshold = dict_user[chat_id]['threshold']
             try:
                 alert_type  = dict_user[chat_id]['alert_type']
