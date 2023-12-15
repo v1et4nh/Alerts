@@ -1,6 +1,7 @@
 import requests
 import time
 import os
+import traceback
 from time import sleep
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.telegrambot import telegram_bot_sendtext, bot_chatID_private, bot_v1_floorbot_token, bot_v1_testbot_token
@@ -39,10 +40,29 @@ def getData(url):
 def getETHprice():
     url_eur = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=eur%2Cbtc&include_market_cap=true&include_24hr_change=true"
     url_usd = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_change=true"
+    for attempt in range(10):
+        try:
+            resp = requests.get(url_eur)
+            if resp.status_code == 200:
+                break
+        except requests.exceptions.RequestException as e:
+            if attempt == 9:
+                raise Exception(f"CoinGecko Api Status Code: {resp.status_code}\n{e}")
+        sleep(3)
     data_eur = requests.get(url_eur).json()
     peur = round(data_eur["ethereum"]["eur"], 2)
     peur = format(peur, ",")
     peur_val = float(peur.replace(',', ''))
+
+    for attempt in range(10):
+        try:
+            resp = requests.get(url_usd)
+            if resp.status_code == 200:
+                break
+        except requests.exceptions.RequestException as e:
+            if attempt == 9:
+                raise Exception(f"CoinGecko Api Status Code: {resp.status_code}\n{e}")
+        sleep(3)
     data = requests.get(url_usd).json()
     pusd = round(data["ethereum"]["usd"], 2)
     pusd = format(pusd, ",")
@@ -54,6 +74,8 @@ def getETHprice():
 def getOSstats(collection):
     url = "https://api.opensea.io/api/v2/collections/" + collection + "/stats"
     data = getData(url)
+    if data == 'RequestsError':
+        return data
     stats = data['total']
     try:
         url = "https://api.opensea.io/api/v2/collections/" + collection
@@ -108,6 +130,9 @@ def run_os_stats():
     for chat_id in dict_user:
         try:
             collection      = dict_user[chat_id]['collection'].replace('?tab=activity', '')
+            if collection in 'antonymgenesis?tab=activity':
+                print('DEBUG')
+                pass
             floor_threshold = dict_user[chat_id]['threshold']
             try:
                 alert_type  = dict_user[chat_id]['alert_type']
@@ -117,6 +142,14 @@ def run_os_stats():
             if collection not in dict_current_floor:
                 sleep(5)
                 stats = getOSstats(collection)
+                if stats == 'RequestsError':
+                    error_counter += 1
+                    send_message = f"*Floor Bot - Error*\n" \
+                                   f"{error_counter}) {chat_id} failed\n" \
+                                   f"Collection: {collection}\n" \
+                                   f"Error: Collection not available anymore or slug has changed"
+                    telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
+                    continue
                 dict_current_floor[collection] = stats
             stats = dict_current_floor[collection]
             last_floor  = get_last_floor(chat_id)
@@ -159,10 +192,12 @@ def run_os_stats():
                 if dict_user[chat_id]['collection']:
                     collection = dict_user[chat_id]['collection']
                     error_counter += 1
+                    traceback_string = traceback.format_exc()
                     send_message = f"*Floor Bot - Error*\n" \
                                    f"{error_counter}) {chat_id} failed\n" \
                                    f"Collection: {collection}\n" \
-                                   f"Error: {e}"
+                                   f"Error: {e} \n" \
+                                   f"Traceback: {traceback_string}"
                     telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
             except:
                 send_message = f"*Floor Bot - Collection Error*\n" \
