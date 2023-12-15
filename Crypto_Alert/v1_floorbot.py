@@ -140,6 +140,20 @@ def getuser(message):
         bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
 
 
+@bot.message_handler(commands=['clean_empty_dict'])
+def clean_dict(message):
+    if message.chat.id == int(private_chat_id) or message.chat.id == 1899354791:
+        dict_user = load_dict_user()
+        len_dict_before = len(dict_user)
+        empty_chat_ids = [chat_id for chat_id in dict_user if not dict_user[chat_id]['collection']]
+        for chat_id in empty_chat_ids:
+            dict_user.pop(chat_id)
+        len_dict_after = len(dict_user)
+        bot.send_message(message.chat.id, f'User Dictionary reduced from {len_dict_before} to {len_dict_after}')
+    else:
+        bot.send_message(message.chat.id, "Error! You are not authorized to do that!")
+
+
 @bot.message_handler(commands=['update'])
 def update(message):
     if message.chat.id == int(private_chat_id):
