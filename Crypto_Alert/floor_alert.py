@@ -144,7 +144,7 @@ def run_os_stats():
                     url       = 'https://opensea.io/collection/' + collection
                     message   = f"*{stats['floor_price']} ETH* - *{get_name(collection)}*\n" \
                                 f"Floor Price: *{stats['floor_price']} ETH* (*{eur_price} EUR* | *{usd_price} USD*)\n" \
-                                f"NFTs: *{int(stats['total_supply'])}*\n" \
+                                f"NFTs: *{stats['total_supply']}*\n" \
                                 f"Holders: *{stats['num_owners']}*\n" \
                                 f"NFT-to-Holders-Ratio: *{ratio}*\n" \
                                 f"Volume traded: *{round(stats['volume'], 2)} ETH*\n" \
@@ -160,8 +160,8 @@ def run_os_stats():
                     collection = dict_user[chat_id]['collection']
                     error_counter += 1
                     send_message = f"*Floor Bot - Error*\n" \
-                                   f"{error_counter}) {chat_id} failed" \
-                                   f"Collection: {collection}" \
+                                   f"{error_counter}) {chat_id} failed\n" \
+                                   f"Collection: {collection}\n" \
                                    f"Error: {e}"
                     telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
             except:
