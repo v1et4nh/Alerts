@@ -40,29 +40,29 @@ def getData(url):
 def getETHprice():
     url_eur = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=eur%2Cbtc&include_market_cap=true&include_24hr_change=true"
     url_usd = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_change=true"
-    for attempt in range(10):
+    for attempt in range(3):
         try:
             resp = requests.get(url_eur)
             if resp.status_code == 200:
                 break
         except requests.exceptions.RequestException as e:
-            if attempt == 9:
+            if attempt == 2:
                 raise Exception(f"CoinGecko Api Status Code: {resp.status_code}\n{e}")
-        sleep(3)
+        sleep(60)
     data_eur = requests.get(url_eur).json()
     peur = round(data_eur["ethereum"]["eur"], 2)
     peur = format(peur, ",")
     peur_val = float(peur.replace(',', ''))
 
-    for attempt in range(10):
+    for attempt in range(3):
         try:
             resp = requests.get(url_usd)
             if resp.status_code == 200:
                 break
         except requests.exceptions.RequestException as e:
-            if attempt == 9:
+            if attempt == 2:
                 raise Exception(f"CoinGecko Api Status Code: {resp.status_code}\n{e}")
-        sleep(3)
+        sleep(60)
     data = requests.get(url_usd).json()
     pusd = round(data["ethereum"]["usd"], 2)
     pusd = format(pusd, ",")
@@ -127,12 +127,10 @@ def run_os_stats():
     dict_floor         = {}
     dict_current_floor = {}
     error_counter      = 0
+    eur, usd, = getETHprice()
     for chat_id in dict_user:
         try:
             collection      = dict_user[chat_id]['collection'].replace('?tab=activity', '')
-            if collection in 'antonymgenesis?tab=activity':
-                print('DEBUG')
-                pass
             floor_threshold = dict_user[chat_id]['threshold']
             try:
                 alert_type  = dict_user[chat_id]['alert_type']
@@ -167,7 +165,6 @@ def run_os_stats():
                     if floor_price <= floor_threshold:
                         trigger_bool = True
                 if floor_threshold == 0 or trigger_bool:
-                    eur, usd, = getETHprice()
                     eur_price = int(eur * floor_price)
                     usd_price = int(usd * floor_price)
                     try:
