@@ -154,12 +154,15 @@ def run_os_stats():
                                 f"Want to see more? -> [Website](https://linktr.ee/v1et4nh)\n" \
                                 f"Love the bots? -> /donate <3"
                     telegram_bot_sendtext(message, bot_chatID=chat_id, bot_token=bot_v1_floorbot_token, disable_web_page_preview=True)
-        except:
+        except Exception as e:
             try:
                 if dict_user[chat_id]['collection']:
+                    collection = dict_user[chat_id]['collection']
                     error_counter += 1
                     send_message = f"*Floor Bot - Error*\n" \
-                                   f"{error_counter}) {chat_id} failed"
+                                   f"{error_counter}) {chat_id} failed" \
+                                   f"Collection: {collection}" \
+                                   f"Error: {e}"
                     telegram_bot_sendtext(send_message, bot_chatID=bot_chatID_private)
             except:
                 send_message = f"*Floor Bot - Collection Error*\n" \
