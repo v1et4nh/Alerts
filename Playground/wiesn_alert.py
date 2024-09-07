@@ -24,7 +24,7 @@ def get_data(driver, label):
         food_drinks = split_data[start_idx:end_idx]
         food_drinks.remove('...')
         food_drinks_txt = food_drinks[0]
-        for i in range(1, 11, 2):
+        for i in range(1, len(food_drinks), 2):
             food_drinks_txt += f"\n{food_drinks[i]}: {food_drinks[i+1]}"
 
         dict_data = {
