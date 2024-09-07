@@ -16,6 +16,9 @@ def get_data(driver, label):
         element     = driver.find_element(By.XPATH, f"//*[contains(text(), '{label}')]/following-sibling::div")
         full_text   = element.get_attribute('textContent').replace('\xa0', ' ').strip()
         split_data  = [line.strip() for line in full_text.split('\n') if line.strip()]
+        pending_txt = "Ein Käufer befindet sich derzeit im Kaufprozess für diese Reservierung"
+        if pending_txt in split_data:
+            split_data.remove(pending_txt)
         start_idx   = split_data.index('Inkludierte Leistungen')
         end_idx     = split_data.index('Summe') + 2
         food_drinks = split_data[start_idx:end_idx]
@@ -25,6 +28,7 @@ def get_data(driver, label):
             food_drinks_txt += f"\n{food_drinks[i]}: {food_drinks[i+1]}"
 
         dict_data = {
+            'pending': True,
             'tent':    split_data[1],
             'daytime': split_data[3],
             'date':    f"{split_data[2]} {split_data[4]}",
@@ -56,7 +60,9 @@ def main(last_message=''):
     for daytime, data in dict_daytimes.items():
         msg_bool = False
         if data:
-            total_message += f"*{data['tent']}*\n{data['date']} | {data['person']} | {data['tables']}\n"
+            if data['pending']:
+                total_message += '_Ein Käufer befindet sich derzeit im Kaufprozess für diese Reservierung_\n'
+            total_message += f"[**{data['tent']}**]({URL})\n{data['date']} | {data['person']} | {data['tables']}\n"
             total_message += f"{data['food']}\n---\n"
             msg_bool = True
             # for i in range(0, len(data), 12):
@@ -71,7 +77,7 @@ def main(last_message=''):
 
     if total_message != last_message:
         last_message   = total_message
-        total_message += f"Hier entlang: {URL}"
+        # total_message += f"[Hier entlang]({URL})"
         telegram_bot_sendtext(total_message, bot_chatID='-1001575230467', disable_web_page_preview=True)
 
     driver.close()
