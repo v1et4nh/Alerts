@@ -13,10 +13,28 @@ SLEEP = 300
 
 def get_data(driver, label):
     try:
-        element = driver.find_element(By.XPATH, f"//*[contains(text(), '{label}')]/following-sibling::div")
-        return element.text.split('\n')
+        element     = driver.find_element(By.XPATH, f"//*[contains(text(), '{label}')]/following-sibling::div")
+        full_text   = element.get_attribute('textContent').replace('\xa0', ' ').strip()
+        split_data  = [line.strip() for line in full_text.split('\n') if line.strip()]
+        start_idx   = split_data.index('Inkludierte Leistungen')
+        end_idx     = split_data.index('Summe') + 2
+        food_drinks = split_data[start_idx:end_idx]
+        food_drinks.remove('...')
+        food_drinks_txt = food_drinks[0]
+        for i in range(1, 11, 2):
+            food_drinks_txt += f"\n{food_drinks[i]}: {food_drinks[i+1]}"
+
+        dict_data = {
+            'tent':    split_data[1],
+            'daytime': split_data[3],
+            'date':    f"{split_data[2]} {split_data[4]}",
+            'person':  split_data[6],
+            'tables':  split_data[7],
+            'food':    food_drinks_txt
+        }
+        return dict_data
     except:
-        return []
+        return {}
 
 
 def main(last_message=''):
@@ -29,23 +47,25 @@ def main(last_message=''):
 
     driver.get(URL)
 
-    labels    = ['Vormittag', 'Mittag', 'Nachmittag', 'Abend']
-    dict_data = {label.lower(): get_data(driver, f'Reservierungen für Tische am {label}') for label in labels}
+    daytimes      = ['Vormittag', 'Mittag', 'Nachmittag', 'Abend']
+    dict_daytimes = {daytime.lower(): get_data(driver, f'Reservierungen für Tische am {daytime}')
+                     for daytime in daytimes}
 
     total_message = ''
 
-    for label, data in dict_data.items():
+    for daytime, data in dict_daytimes.items():
         msg_bool = False
         if data:
-            for i in range(0, len(data), 12):
-                tmp_msg = ' | '.join(data[i+1:i + 11]) + '\n---\n'
-                if 'Bodos Cafezelt' in tmp_msg:  # Blacklist
-                    continue
-                if label in ['nachmittag', 'abend'] or \
-                        any(day in tmp_msg for day in ['Freitag', 'Samstag', 'Sonntag']) or \
-                        any(date in tmp_msg for date in ['01.10.2023', '02.10.2023', '03.10.2023']):
-                    msg_bool = True
-                    total_message += tmp_msg
+            total_message += f"*{data['tent']}*\n{data['date']} | {data['person']} | {data['tables']}\n"
+            total_message += f"{data['food']}\n---\n"
+            msg_bool = True
+            # for i in range(0, len(data), 12):
+            #     tmp_msg = ' | '.join(data[i+1:i + 11]) + '\n---\n'
+            #     if 'Bodos Cafezelt' in tmp_msg:  # Blacklist
+            #         continue
+            #     if daytime in ['mittag', 'nachmittag', 'abend']:
+            #         msg_bool = True
+            #         total_message += tmp_msg
             if msg_bool:
                 total_message += '\n'
 
