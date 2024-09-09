@@ -10,7 +10,7 @@ from Functions.telegrambot import telegram_bot_sendtext
 from Functions.telegrambot import bot_chatID_private
 
 URL   = "https://www.oktoberfest-booking.com/de/reseller-angebote"
-SLEEP = 30
+SLEEP = 300
 
 
 def get_data(driver, label):
@@ -109,8 +109,7 @@ def main(last_message=''):
     print(f"##########\nDiff (+):\n {diff_pos}##########\nDiff (-):\n {diff_neg}##########\n")
     disable_notification = True
     if total_message != last_message:
-        last_message = total_message
-        if len(diff_pos.replace(pending_txt, '')) > 0:
+        if len(diff_pos.replace(pending_txt, '')) > 0 and last_message != '':
             disable_notification = False
         print(f'Disable notification: {disable_notification}')
         # total_message += f"[Hier entlang]({URL})"
@@ -118,6 +117,7 @@ def main(last_message=''):
                               disable_notification=disable_notification)
         # telegram_bot_sendtext(total_message, bot_chatID=bot_chatID_private, disable_web_page_preview=True,
         #                       disable_notification=disable_notification)
+        last_message = total_message
 
     driver.close()
     print(f"Success: {total_message}")
