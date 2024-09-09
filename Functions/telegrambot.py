@@ -13,7 +13,8 @@ bot_chatID_private     = str(os.getenv('TELEGRAM_BOT_CHATID_PRIVATE'))  # Replac
 etherscan_api_key      = str(os.getenv('ETHERSCAN_API_KEY'))            # Replace with your own api key
 
 
-def telegram_bot_sendtext(bot_message, bot_token=bot_token, bot_chatID=bot_chatID_group, disable_web_page_preview=False, parse_mode='Markdown'):
+def telegram_bot_sendtext(bot_message, bot_token=bot_token, bot_chatID=bot_chatID_group, disable_web_page_preview=False,
+                          disable_notification=False, parse_mode='Markdown'):
     """
     :param bot_message: str, Message to be sent
     :param bot_token: str, Token of your bot defined @botFather, default: from environment variable
@@ -25,7 +26,8 @@ def telegram_bot_sendtext(bot_message, bot_token=bot_token, bot_chatID=bot_chatI
                 f"/sendMessage?chat_id={bot_chatID}" \
                 f"&disable_web_page_preview={disable_web_page_preview}" \
                 f"&parse_mode={parse_mode}" \
-                f"&text={bot_message}"
+                f"&text={bot_message}" \
+                f"&disable_notification={disable_notification}"
     # send_text  = 'https://api.telegram.org/bot' + bot_token
     # send_text += '/sendMessage?chat_id=' + bot_chatID
     # if disable_web_page_preview:

@@ -1,5 +1,6 @@
 import os
 import time
+import difflib
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -9,7 +10,7 @@ from Functions.telegrambot import telegram_bot_sendtext
 from Functions.telegrambot import bot_chatID_private
 
 URL   = "https://www.oktoberfest-booking.com/de/reseller-angebote"
-SLEEP = 300
+SLEEP = 30
 
 
 def get_data(driver, label):
@@ -78,6 +79,7 @@ def main(last_message=''):
                      for daytime in daytimes}
 
     total_message = ''
+    pending_txt   = '_Ein Käufer befindet sich derzeit im Kaufprozess für diese Reservierung_\n'
 
     for daytime, data in dict_daytimes.items():
         msg_bool = False
@@ -87,7 +89,7 @@ def main(last_message=''):
                     continue
                     # total_message += '_Bereits verkauft_\n'
                 if data[i]['pending']:
-                    total_message += '_Ein Käufer befindet sich derzeit im Kaufprozess für diese Reservierung_\n'
+                    total_message += pending_txt
                 total_message += f"[**{data[i]['tent']}**]({URL})\n{data[i]['date']} | {data[i]['person']} | {data[i]['tables']}\n"
                 total_message += f"{data[i]['food']}\n---\n"
                 msg_bool = True
@@ -101,11 +103,21 @@ def main(last_message=''):
                 if msg_bool:
                     total_message += '\n'
 
+    diff_msg = difflib.ndiff(last_message, total_message)
+    diff_pos = ''.join([s[-1] for s in diff_msg if s[0] == '+'])
+    diff_neg = ''.join([s[-1] for s in diff_msg if s[0] == '-'])
+    print(f"##########\nDiff (+):\n {diff_pos}##########\nDiff (-):\n {diff_neg}##########\n")
+    disable_notification = True
     if total_message != last_message:
-        last_message   = total_message
+        last_message = total_message
+        if len(diff_pos.replace(pending_txt, '')) > 0:
+            disable_notification = False
+        print(f'Disable notification: {disable_notification}')
         # total_message += f"[Hier entlang]({URL})"
-        telegram_bot_sendtext(total_message, bot_chatID='-1001575230467', disable_web_page_preview=True)
-        # telegram_bot_sendtext(total_message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
+        telegram_bot_sendtext(total_message, bot_chatID='-1001575230467', disable_web_page_preview=True,
+                              disable_notification=disable_notification)
+        # telegram_bot_sendtext(total_message, bot_chatID=bot_chatID_private, disable_web_page_preview=True,
+        #                       disable_notification=disable_notification)
 
     driver.close()
     print(f"Success: {total_message}")
