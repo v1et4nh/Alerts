@@ -31,9 +31,9 @@ def get_data(driver, label):
             if pending_txt in tmp_data:
                 pending_bool = True
                 tmp_data.remove(pending_txt)
-            if '.st0{fill:#78B0EE;}' in tmp_data:
+            if tmp_data.count('.st0{fill:#78B0EE;}') > 1:
                 sold_bool = True
-                tmp_data.remove('.st0{fill:#78B0EE;}')
+            tmp_data.remove('.st0{fill:#78B0EE;}')
             food_start_idx  = tmp_data.index('Inkludierte Leistungen')
             food_end_idx    = tmp_data.index('Summe') + 2
             food_drinks     = tmp_data[food_start_idx:food_end_idx]
@@ -106,7 +106,7 @@ def main(last_message=''):
     diff_msg = difflib.ndiff(last_message, total_message)
     diff_pos = ''.join([s[-1] for s in diff_msg if s[0] == '+'])
     diff_neg = ''.join([s[-1] for s in diff_msg if s[0] == '-'])
-    print(f"##########\nDiff (+):\n {diff_pos}##########\nDiff (-):\n {diff_neg}##########\n")
+    print(f"##########\nDiff (+):\n{diff_pos}##########\nDiff (-):\n{diff_neg}##########\n")
     disable_notification = True
     if total_message != last_message:
         if len(diff_pos.replace(pending_txt, '')) > 0 and last_message != '':
