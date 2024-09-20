@@ -33,7 +33,8 @@ def get_data(driver, label):
                 tmp_data.remove(pending_txt)
             if tmp_data.count('.st0{fill:#78B0EE;}') > 1:
                 sold_bool = True
-            tmp_data.remove('.st0{fill:#78B0EE;}')
+            while '.st0{fill:#78B0EE;}' in tmp_data:
+                tmp_data.remove('.st0{fill:#78B0EE;}')
             food_start_idx  = tmp_data.index('Inkludierte Leistungen')
             food_end_idx    = tmp_data.index('Summe') + 2
             food_drinks     = tmp_data[food_start_idx:food_end_idx]
