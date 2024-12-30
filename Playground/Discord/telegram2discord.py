@@ -19,6 +19,8 @@ def start():
     with TelegramClient("DAN's Messages", API_ID, API_HASH) as client:
         @client.on(events.NewMessage(chats=CHAT_LIST))
         async def handler(event):
+            print(f"Chat-ID: {event.chat_id}")
+            print(f"User-ID: {event.message.sender.id}")
             if event.message.sender.id in USER_LIST or event.chat_id == -4796832607:  # Dan's Calls Channel
                 message = f"{event.message.chat.title}: {event.message.message}"
                 print(message)
