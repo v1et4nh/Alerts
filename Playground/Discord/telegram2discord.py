@@ -21,7 +21,7 @@ def start():
         async def handler(event):
             print(f"Chat-ID: {event.chat_id}")
             print(f"User-ID: {event.message.sender.id}")
-            if event.message.sender.id in USER_LIST or event.chat_id == -4796832607:  # Dan's Calls Channel
+            if event.message.sender.id in USER_LIST or event.chat_id == -1002229424524:  # Dan's Calls Channel
                 message = f"{event.message.chat.title}: {event.message.message}"
                 print(message)
                 my_channel = await client.get_entity(CHANNEL_LINK)
