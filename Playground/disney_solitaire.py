@@ -15,20 +15,26 @@ from pathlib import Path
 import re
 
 # ==================== KONFIG ====================
-OUTDIR = Path(r"C:\Users\Viet-Desktop\Downloads\Disney_Solitaire_Automation")
+OUTDIR = Path.home() / "Downloads" / "Disney_Solitaire_Automation"
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 # Loops & Pausen
-LOOPS = 50
+LOOPS = 1000
 PAUSE_AFTER_COLLECT_S = 1
 
 # Koordinaten
-TOGGLE_AUTO = (947, 317)     # Auto-Zeit Toggle
-OPEN_TIME   = (520, 670)     # "Uhrzeit einstellen"
-HOUR_UP     = (314, 868)     # +1h
-MIN_UP      = (785, 868)     # +1min
-TIME_OK     = (791, 1033)    # OK im Time Picker
-COLLECT     = (540, 2150)    # "EINSAMMELN"
+# TOGGLE_AUTO = (947, 317)     # Auto-Zeit Toggle
+TOGGLE_AUTO = (1275, 525)     # Auto-Zeit Toggle
+# OPEN_TIME   = (520, 670)     # "Uhrzeit einstellen"
+OPEN_TIME   = (520, 995)     # "Uhrzeit einstellen"
+# HOUR_UP     = (314, 868)     # +1h
+HOUR_UP     = (425, 2555)     # +1h
+# MIN_UP      = (785, 868)     # +1min
+MIN_UP      = (1025, 2555)     # +1min
+# TIME_OK     = (791, 1033)    # OK im Time Picker
+TIME_OK     = (1075, 2785)    # OK im Time Picker
+# COLLECT     = (540, 2150)    # "EINSAMMELN"
+COLLECT     = (1550, 1300)    # "EINSAMMELN"
 
 # Prüfen auf diese Strings (case-insensitive, Teilstrings ok)
 NEEDLE_AFTER_TOGGLE_OFF = "Uhrzeit einstellen"
@@ -53,14 +59,27 @@ def run(cmd, check=False, capture=True):
 def adb(*args, check=False):
     return run(["adb", *args], check=check)
 
+def open_date_settings():
+    """Öffnet direkt die Datums-/Uhrzeiteinstellungen von Android."""
+    adb("shell", "am", "start", "-a", "android.settings.DATE_SETTINGS")
 
 def swipe(x, y, duration_ms=200):
     rc, out, err = adb("shell", "input", "swipe", str(x), str(y), str(x), str(y), str(duration_ms))
     if rc != 0:
         print(f"[E] swipe({x},{y}) failed: {err.strip()}")
 
+def switch_to_previous_app():
+    """Wechselt zur vorherigen App (Spiel)."""
+    adb("shell", "input", "keyevent", "KEYCODE_APP_SWITCH")
+    time.sleep(0.5)
+    adb("shell", "input", "keyevent", "KEYCODE_APP_SWITCH")
+
+def go_home():
+    """Springt direkt auf den Home-Bildschirm des Handys."""
+    adb("shell", "input", "keyevent", "3")
 
 def wait_for_device():
+    # adb("connect", "192.168.178.34:36357")
     rc, out, err = adb("wait-for-device")
     if rc != 0:
         print("[E] adb wait-for-device failed.")
@@ -99,8 +118,8 @@ def dump_ui(dest: Path) -> bool:
 def show_texts(xml_path: Path, limit=20):
     try:
         text = xml_path.read_text(encoding="utf-8", errors="ignore")
-    except Exception as e:
-        print(f"[E] Konnte XML nicht lesen: {e}")
+    except Exception as exception:
+        print(f"[E] Konnte XML nicht lesen: {exception}")
         return "", []
     texts = re.findall(r'text="([^"]*)"', text)
     print("— Erste Texte —")
@@ -124,7 +143,7 @@ def wait_for_text(needle: str, timeout_s: int = 10, tag: str = "") -> bool:
         ok = dump_ui(dest)
         if not ok:
             print(f"[W] Dump fehlgeschlagen (Versuch {attempt})")
-            time.sleep(1)
+            time.sleep(0.5)
             continue
         print(f"[i] Dump gespeichert: {dest}")
         xml_text, _ = show_texts(dest, limit=99999)
@@ -135,7 +154,7 @@ def wait_for_text(needle: str, timeout_s: int = 10, tag: str = "") -> bool:
         if re.search(re.escape(needle), xml_text, re.IGNORECASE):
             print(f"[✓] Gefunden: {needle}")
             return True
-        time.sleep(1)
+        time.sleep(0.5)
 
     print(f"[×] Timeout: '{needle}' nicht gefunden.")
     return False
@@ -150,12 +169,20 @@ def main():
     for i in range(1, LOOPS + 1):
         print(f"\n=== Durchlauf {i} ===")
 
-        # 1) Auto-Zeit AUS
+        # 0) Startbildschirm
+        go_home()
+        time.sleep(1)
+
+        # 1) In die Einstellungen springen
+        open_date_settings()
+        time.sleep(0.5)
+
+        # 2) Auto-Zeit AUS
         swipe(*TOGGLE_AUTO)
         if not wait_for_text(NEEDLE_AFTER_TOGGLE_OFF, timeout_s=12, tag="nach Toggle OFF"):
             print("[!] Weiter trotzdem… (UI-Text nicht gefunden)")
 
-        # 2) Uhrzeit +2h
+        # 3) Uhrzeit +1h
         swipe(*OPEN_TIME)
         if not wait_for_text(NEEDLE_TIMEPICKER_OPEN, timeout_s=12, tag="TimePicker offen"):
             print("[!] 'OK' im TimePicker nicht gefunden – versuche dennoch +2h/OK")
@@ -167,12 +194,24 @@ def main():
         if not wait_for_text(NEEDLE_BACK_TO_SETTINGS, timeout_s=12, tag="zurück zu Datum & Uhrzeit"):
             print("[!] 'Datum' nicht gefunden – fahre fort…")
 
-        # 3) Auto-Zeit wieder AN
+        # 4) Zurück ins Spiel wechseln
+        switch_to_previous_app()
+        time.sleep(0.5)
+
+        # 5) Zurück in die Einstellungen wechseln
+        switch_to_previous_app()
+        time.sleep(0.5)
+
+        # 6) Auto-Zeit wieder AN
         swipe(*TOGGLE_AUTO)
         if not wait_for_text(NEEDLE_AUTOMATIC_TEXT, timeout_s=12, tag="Automatisch sichtbar"):
             print("[!] 'Automatisch' nicht gefunden – fahre fort…")
 
-        # 4) Einsammeln im Spiel
+        # 7) Zurück ins Spiel wechseln
+        switch_to_previous_app()
+        time.sleep(0.5)
+
+        # 8) Einsammeln im Spiel
         swipe(*COLLECT)
         # Spiele sind oft nicht dumpbar – optionaler Check:
         dump_ui(OUTDIR / "ui.xml")  # ignorieren, wenn’s fehlschlägt
