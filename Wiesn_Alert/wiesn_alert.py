@@ -1,7 +1,6 @@
 import os
 import re
 import time
-import difflib
 from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -10,59 +9,15 @@ from webdriver_manager.firefox import GeckoDriverManager
 from Functions.telegrambot import telegram_bot_sendtext
 from Functions.telegrambot import bot_chatID_private
 from Functions.file_handler import save_pickle, load_pickle
+from Functions.wiesn_shared import PENDING_TEXT, clean_text, build_message_for, chunk_message, entry_key
 
 STATUS_FILE = '../Data/wiesn_alert_status.pickle'
 SUBSCRIBERS_FILE = '../Data/wiesn_alert_subscribers.pickle'
-
-# TODO: passe den Namen an das an, was du in Functions/telegrambot.py für den
-# Wiesn-Bot-Token definierst (analog zu deinem bot_v1_gasfeebot_token beim Gas-Bot).
-# from Functions.telegrambot import bot_wiesnbot_token
 
 # Wichtig: Der Fragment-Anker #ticket-shop wird gebraucht, damit die
 # Angebote beim Laden bereits im HTML stehen.
 URL = "https://www.oktoberfest-booking.com/de#ticket-shop"
 SLEEP = 300
-
-PENDING_TEXT = "Ein Käufer befindet sich derzeit im Kaufprozess für diese Reservierung"
-PENDING_MSG = f'_{PENDING_TEXT}_\n'
-
-
-TELEGRAM_MAX_LEN = 4096
-
-
-def chunk_message(text, max_len=TELEGRAM_MAX_LEN):
-    """Teilt einen Text an Eintragsgrenzen (doppelter Zeilenumbruch) in Stücke
-    unter max_len Zeichen auf, statt Telegrams 4096-Zeichen-Limit pro Nachricht
-    zu überschreiten (führt sonst zu 'Bad Request: message is too long')."""
-    if len(text) <= max_len:
-        return [text] if text else []
-
-    chunks = []
-    current = ''
-    for block in text.split('\n\n'):
-        candidate = f"{current}{block}\n\n"
-        if len(candidate) > max_len:
-            if current:
-                chunks.append(current)
-            # Falls ein einzelner Block selbst schon zu lang ist (Extremfall,
-            # z. B. riesige Leistungsliste), hart zerschneiden statt zu verwerfen.
-            if len(block) > max_len:
-                for i in range(0, len(block), max_len):
-                    chunks.append(block[i:i + max_len])
-                current = ''
-            else:
-                current = f"{block}\n\n"
-        else:
-            current = candidate
-    if current:
-        chunks.append(current)
-
-    return chunks
-
-
-def clean_text(text):
-    """Mehrfache Whitespaces/Zeilenumbrüche zu einem einzigen Leerzeichen zusammenfassen."""
-    return re.sub(r'\s+', ' ', text).strip()
 
 
 def parse_entry(entry_div, daytime_fallback):
@@ -161,43 +116,35 @@ def get_data(driver):
     return dict_data
 
 
-def format_entry(e):
-    lines = [f"[**{e['tent']}**]({e['tent_url']})"]
-    lines.append(f"{e.get('date', '')} | {e.get('daytime', '')} | {e.get('time_range', '')}")
-    lines.append(f"{e.get('persons', '')} | {e.get('tables', '')}")
-    for label, price in e['items']:
-        lines.append(f" - {label}" + (f": {price}" if price else ""))
-    lines.append(f"---\nSumme: {e['total']}")
-    return "\n".join(lines)
+def send_to_all(new_entries):
+    """new_entries enthält NUR die seit dem letzten Check neu hinzugekommenen
+    Angebote (unabhängig von Filtern). Für jeden Abonnenten wird die auf
+    seine Regeln gefilterte Teilmenge verschickt -- nur, wenn nach dem
+    Filtern für ihn auch wirklich was übrig bleibt."""
+    if not new_entries:
+        return
 
-
-def send_to_all(message, disable_notification):
-    """Schickt die Nachricht (ggf. in mehreren Teilen) an die feste Gruppe UND
-    an alle aktiven /start-Abonnenten."""
-    chunks = chunk_message(message)
-
-    # Feste Gruppe (bestehendes Verhalten bleibt erhalten)
-    for chunk in chunks:
-        telegram_bot_sendtext(chunk, bot_chatID='-1001575230467', disable_web_page_preview=True,
-                               disable_notification=disable_notification)
-
-    # Individuelle Abonnenten aus dem Wiesn-Bot (/start)
     subscribers = load_pickle(SUBSCRIBERS_FILE)
     if 'Error' in subscribers:
         subscribers = {}
 
-    for chat_id, active in subscribers.items():
-        if not active:
+    for chat_id, prefs in subscribers.items():
+        if not isinstance(prefs, dict) or not prefs.get('active'):
             continue
+
+        personal_message = build_message_for(new_entries, prefs)
+        if not personal_message:
+            continue  # keines der neuen Angebote passt zu den Regeln dieses Nutzers
+
         try:
-            for chunk in chunks:
+            for chunk in chunk_message(personal_message):
                 telegram_bot_sendtext(chunk, bot_chatID=chat_id, disable_web_page_preview=True,
-                                       disable_notification=disable_notification)
+                                       disable_notification=False)
         except Exception as e:
             print(f"Konnte Nachricht nicht an {chat_id} senden: {e}")
 
 
-def main(last_message=''):
+def main(known_keys):
     os.environ['MOZ_HEADLESS'] = '1'
 
     if os.name == 'nt':
@@ -209,52 +156,50 @@ def main(last_message=''):
     wait_for_entries(driver)
 
     data = get_data(driver)
+    current_keys = {entry_key(e) for e in data.values()}
 
-    total_message = ''
-    for i in sorted(data):
-        entry = data[i]
-        if entry['pending']:
-            total_message += PENDING_MSG
-        total_message += format_entry(entry) + '\n\n'
+    is_first_run = not known_keys  # noch nie einen Check gemacht (auch nicht vor einem Neustart)
+    new_keys = current_keys - known_keys
+    new_entries = {i: e for i, e in data.items() if entry_key(e) in new_keys}
 
-    diff_msg = difflib.ndiff(last_message, total_message)
-    diff_pos = ''.join([s[-1] for s in diff_msg if s[0] == '+'])
-    diff_neg = ''.join([s[-1] for s in diff_msg if s[0] == '-'])
-    print(f"##########\nDiff (+):\n{diff_pos}##########\nDiff (-):\n{diff_neg}##########\n")
-
-    disable_notification = True
-    if total_message != last_message:
-        if len(diff_pos.replace(PENDING_MSG, '')) > 0 and last_message != '':
-            disable_notification = False
-        print(f'Disable notification: {disable_notification}')
-        send_to_all(total_message, disable_notification)
-        last_message = total_message
+    if is_first_run:
+        print(f"Erster Lauf: {len(current_keys)} Angebote als Basis übernommen, keine Benachrichtigung.")
+    elif new_entries:
+        print(f"{len(new_entries)} neue(s) Angebot(e) gefunden -- benachrichtige.")
+        send_to_all(new_entries)
+    else:
+        print("Keine neuen Angebote.")
 
     driver.close()
 
     # Status-Datei aktualisieren -- das ist der "Herzschlag" des Bots.
-    # Ein separater interaktiver Bot kann darauf per /status zugreifen und
-    # dir sagen, wann der letzte Check gelaufen ist.
+    # known_keys wird persistiert, damit ein Neustart des Skripts nicht
+    # plötzlich alle aktuell vorhandenen Angebote fälschlich als "neu" meldet.
+    # Enthält außerdem die rohen Angebotsdaten für /latest, /alle und /status
+    # im interaktiven Bot.
     save_pickle({
         'last_run': datetime.now(),
         'entry_count': len(data),
-        'last_message': total_message,
+        'data': data,
+        'known_keys': current_keys,
     }, STATUS_FILE)
 
-    print(f"Success: {total_message}")
-    return last_message
+    print(f"Success: {len(data)} Angebote aktuell bekannt.")
+    return current_keys
 
 
 if __name__ == '__main__':
-    last_message = ''
+    status_data = load_pickle(STATUS_FILE)
+    known_keys = status_data.get('known_keys', set()) if 'Error' not in status_data else set()
+
     while True:
         print('Wiesn Alert:')
         try:
             print(time.strftime('%X %x %Z'))
-            last_message = main(last_message)
+            known_keys = main(known_keys)
             time.sleep(SLEEP)
         except Exception as e:
             print('Restart...')
             message = f'Irgendetwas stimmt mit dem Wiesn Alert nicht. Fehlermeldung: \n{e}'
-            telegram_bot_sendtext(message, bot_chatID='-1001575230467', disable_web_page_preview=True)
+            telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
             time.sleep(SLEEP)
