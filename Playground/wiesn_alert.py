@@ -2,12 +2,21 @@ import os
 import re
 import time
 import difflib
+from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 from Functions.telegrambot import telegram_bot_sendtext
 from Functions.telegrambot import bot_chatID_private
+from Functions.file_handler import save_pickle, load_pickle
+
+STATUS_FILE = '../Data/wiesn_alert_status.pickle'
+SUBSCRIBERS_FILE = '../Data/wiesn_alert_subscribers.pickle'
+
+# TODO: passe den Namen an das an, was du in Functions/telegrambot.py für den
+# Wiesn-Bot-Token definierst (analog zu deinem bot_v1_gasfeebot_token beim Gas-Bot).
+# from Functions.telegrambot import bot_wiesnbot_token
 
 # Wichtig: Der Fragment-Anker #ticket-shop wird gebraucht, damit die
 # Angebote beim Laden bereits im HTML stehen.
@@ -16,6 +25,39 @@ SLEEP = 300
 
 PENDING_TEXT = "Ein Käufer befindet sich derzeit im Kaufprozess für diese Reservierung"
 PENDING_MSG = f'_{PENDING_TEXT}_\n'
+
+
+TELEGRAM_MAX_LEN = 4096
+
+
+def chunk_message(text, max_len=TELEGRAM_MAX_LEN):
+    """Teilt einen Text an Eintragsgrenzen (doppelter Zeilenumbruch) in Stücke
+    unter max_len Zeichen auf, statt Telegrams 4096-Zeichen-Limit pro Nachricht
+    zu überschreiten (führt sonst zu 'Bad Request: message is too long')."""
+    if len(text) <= max_len:
+        return [text] if text else []
+
+    chunks = []
+    current = ''
+    for block in text.split('\n\n'):
+        candidate = f"{current}{block}\n\n"
+        if len(candidate) > max_len:
+            if current:
+                chunks.append(current)
+            # Falls ein einzelner Block selbst schon zu lang ist (Extremfall,
+            # z. B. riesige Leistungsliste), hart zerschneiden statt zu verwerfen.
+            if len(block) > max_len:
+                for i in range(0, len(block), max_len):
+                    chunks.append(block[i:i + max_len])
+                current = ''
+            else:
+                current = f"{block}\n\n"
+        else:
+            current = candidate
+    if current:
+        chunks.append(current)
+
+    return chunks
 
 
 def clean_text(text):
@@ -129,6 +171,32 @@ def format_entry(e):
     return "\n".join(lines)
 
 
+def send_to_all(message, disable_notification):
+    """Schickt die Nachricht (ggf. in mehreren Teilen) an die feste Gruppe UND
+    an alle aktiven /start-Abonnenten."""
+    chunks = chunk_message(message)
+
+    # Feste Gruppe (bestehendes Verhalten bleibt erhalten)
+    for chunk in chunks:
+        telegram_bot_sendtext(chunk, bot_chatID='-1001575230467', disable_web_page_preview=True,
+                               disable_notification=disable_notification)
+
+    # Individuelle Abonnenten aus dem Wiesn-Bot (/start)
+    subscribers = load_pickle(SUBSCRIBERS_FILE)
+    if 'Error' in subscribers:
+        subscribers = {}
+
+    for chat_id, active in subscribers.items():
+        if not active:
+            continue
+        try:
+            for chunk in chunks:
+                telegram_bot_sendtext(chunk, bot_chatID=chat_id, disable_web_page_preview=True,
+                                       disable_notification=disable_notification)
+        except Exception as e:
+            print(f"Konnte Nachricht nicht an {chat_id} senden: {e}")
+
+
 def main(last_message=''):
     os.environ['MOZ_HEADLESS'] = '1'
 
@@ -159,13 +227,20 @@ def main(last_message=''):
         if len(diff_pos.replace(PENDING_MSG, '')) > 0 and last_message != '':
             disable_notification = False
         print(f'Disable notification: {disable_notification}')
-        telegram_bot_sendtext(total_message, bot_chatID='-1001575230467', disable_web_page_preview=True,
-                               disable_notification=disable_notification)
-        # telegram_bot_sendtext(total_message, bot_chatID=bot_chatID_private, disable_web_page_preview=True,
-        #                       disable_notification=disable_notification)
+        send_to_all(total_message, disable_notification)
         last_message = total_message
 
     driver.close()
+
+    # Status-Datei aktualisieren -- das ist der "Herzschlag" des Bots.
+    # Ein separater interaktiver Bot kann darauf per /status zugreifen und
+    # dir sagen, wann der letzte Check gelaufen ist.
+    save_pickle({
+        'last_run': datetime.now(),
+        'entry_count': len(data),
+        'last_message': total_message,
+    }, STATUS_FILE)
+
     print(f"Success: {total_message}")
     return last_message
 
