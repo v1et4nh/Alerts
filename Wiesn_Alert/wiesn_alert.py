@@ -3,13 +3,21 @@ import re
 import time
 from datetime import datetime
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 from Functions.telegrambot import telegram_bot_sendtext
-from Functions.telegrambot import bot_chatID_private
 from Functions.file_handler import save_pickle, load_pickle
 from Functions.wiesn_shared import PENDING_TEXT, clean_text, build_message_for, chunk_message, entry_key
+
+load_dotenv()
+# WICHTIG: Das ist derselbe Bot-Token wie in wiesn_bot.py (TELEGRAM_V1_WIESNBOT_TOKEN).
+# Ohne explizites bot_token nutzt telegram_bot_sendtext sonst einen anderen
+# (Standard-)Bot, der die neuen Abonnenten noch nie angeschrieben hat --
+# Telegram blockt das dann mit 403 Forbidden.
+WIESN_BOT_TOKEN = str(os.getenv('TELEGRAM_V1_WIESNBOT_TOKEN'))
+PRIVATE_CHAT_ID = str(os.getenv('TELEGRAM_BOT_CHATID_PRIVATE'))
 
 STATUS_FILE = '../Data/wiesn_alert_status.pickle'
 SUBSCRIBERS_FILE = '../Data/wiesn_alert_subscribers.pickle'
@@ -128,6 +136,8 @@ def send_to_all(new_entries):
     if 'Error' in subscribers:
         subscribers = {}
 
+    subscribers_changed = False
+
     for chat_id, prefs in subscribers.items():
         if not isinstance(prefs, dict) or not prefs.get('active'):
             continue
@@ -138,11 +148,25 @@ def send_to_all(new_entries):
 
         try:
             for chunk in chunk_message(personal_message):
-                telegram_bot_sendtext(chunk, bot_chatID=chat_id, disable_web_page_preview=True,
-                                       disable_notification=False)
+                response = telegram_bot_sendtext(chunk, bot_token=WIESN_BOT_TOKEN, bot_chatID=chat_id,
+                                                  disable_web_page_preview=True, disable_notification=False)
+                # telegram_bot_sendtext gibt response.json() zurück (ein Dict),
+                # kein requests.Response-Objekt -- also über error_code prüfen.
+                if isinstance(response, dict) and response.get('error_code') == 403:
+                    # 403 = Nutzer hat den Bot blockiert (oder Chat existiert nicht
+                    # mehr) -- das ist dauerhaft, ein Retry bringt nichts. Also
+                    # automatisch deaktivieren, damit wir nicht jedes Mal wieder
+                    # ins Leere schicken. Wer den Bot entsperrt und /start
+                    # schreibt, wird ganz normal wieder aktiv.
+                    print(f"{chat_id} hat den Bot geblockt -- Abo automatisch deaktiviert.")
+                    prefs['active'] = False
+                    subscribers_changed = True
+                    break  # keine weiteren Chunks an diesen toten Chat schicken
         except Exception as e:
             print(f"Konnte Nachricht nicht an {chat_id} senden: {e}")
 
+    if subscribers_changed:
+        save_pickle(subscribers, SUBSCRIBERS_FILE)
 
 def main(known_keys):
     os.environ['MOZ_HEADLESS'] = '1'
@@ -201,5 +225,5 @@ if __name__ == '__main__':
         except Exception as e:
             print('Restart...')
             message = f'Irgendetwas stimmt mit dem Wiesn Alert nicht. Fehlermeldung: \n{e}'
-            telegram_bot_sendtext(message, bot_chatID=bot_chatID_private, disable_web_page_preview=True)
+            telegram_bot_sendtext(message, bot_chatID=PRIVATE_CHAT_ID, disable_web_page_preview=True)
             time.sleep(SLEEP)
